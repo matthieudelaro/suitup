@@ -1,9 +1,10 @@
 #include "FastLED.h"
 #include "utils.h"
 
+CRGB ALL[NUM_LEDS_ALL];
+
 void setup() {
   byte x = incomingByte;
-  byte y = testee();
   FastLED.addLeds<NEOPIXEL, 4>(ALL, 0, NUM_LEDS_ARM_L);
   FastLED.addLeds<NEOPIXEL, 3>(ALL, NUM_LEDS_ARM_L+NUM_LEDS_CHEST, NUM_LEDS_ARM_R);
   FastLED.addLeds<NEOPIXEL, 2>(ALL, NUM_LEDS_ARM_L, NUM_LEDS_CHEST);
@@ -16,10 +17,19 @@ void setup() {
 
   Serial1.begin(9600);
 
+  current = 39;
 }
 
 void loop() {
-//FastLED.clear(true);
+  // Serial1.println("\n");
+  // Serial1.println(NUM_LEDS_ALL);
+  // Serial1.println(WIDTH);
+  // Serial1.println(HEIGHT);
+  // Serial1.println(id(0, 0));
+  // ALL[id(0, 0)] = CRGB::Red;
+  // FastLED.show();
+  WasteTime(2000);
+  FastLED.clear(true);
   FromLoop = 1;
   if (Serial1.available() > 0) {
                 // read the incoming byte:
@@ -35,11 +45,91 @@ void loop() {
   if (current == 97){defile(80);}
   if (current == 122){rvbWheel(32,64,64);}
   if (current == 101){rainbowCycle(5);}
+  if (current == 42) {testCorners();}
+  if (current == 41) {testLines();}
+  if (current == 40) {testRainbow();}
+  if (current == 39) {expandingCircle(250, 250, 250, 15, 10, 3, 50);}
 }
 
 
 // ############################################################################# FONCTIONS #############################################################################
+// @param: x,y : center
+// @param: r,g,b : color
+void expandingCircle(const byte r, const byte g, const byte b, const byte x, const byte y, const byte stroke, const short transition) {
+  FastLED.clear(true);
+  char radius = 0;
+  short ledID;
 
+  for (byte state = 0; state < 25; ++state) { // TODO: make a while with a good condition
+    // for(short i = 0; i < NUM_LEDS_ALL; i++) { // nice hallow effect
+    //   ALL[i] = CRGB(state, state, state);
+    // }
+    for(short i = 0; i < NUM_LEDS_ALL; i++) {
+      ALL[i] = CRGB(0, 0, 0);
+    }
+    for (char dx = -radius; dx <= radius; ++dx) {
+      for (char dy = -radius; dy <= radius; ++dy) {
+        byte distance = sqrt((dx*dx)+(dy*dy));
+        if (radius < stroke){
+          if (distance <= radius) {
+            if ((ledID = id(x+dx, y+dy)) != -1) {
+              ALL[ledID] = CRGB(r, g, b);
+            }
+          }
+        } else {
+          if (B(radius-stroke, distance, radius)) {
+            if ((ledID = id(x+dx, y+dy)) != -1) {
+              ALL[ledID] = CRGB(r, g, b);
+            }
+          }
+        }
+      }
+    }
+    FastLED.show();
+    if (FromLoop == 0){ return;}
+    WasteTime(transition);
+    ++radius;
+  }
+}
+
+void testCorners() {
+  FastLED.clear(true);
+  ALL[id(0, 0)] = CRGB::Red;
+  ALL[id(WIDTH-1, 0)] = CRGB::Red;
+  ALL[id(0, FAT_ARM-1)] = CRGB::Green;
+  ALL[id(WIDTH-1, FAT_ARM-1)] = CRGB::Green;
+  FastLED.show();
+}
+void testRainbow() {
+  short led = 0;
+  FastLED.clear(true);
+  for (byte x = 0; x < WIDTH; ++x) {
+    for (byte y = 0; y < HEIGHT; ++y) {
+      led = id(x, y);
+      if (led != -1) {
+        ALL[led] = CRGB(4*x, 4*y, 0);
+      }
+    }
+  }
+  FastLED.show();
+}
+void testLines() {
+  short led = 0;
+  FastLED.clear(true);
+  for (byte x = 0; x < WIDTH; ++x) {
+    for (byte y = 0; y < HEIGHT; ++y) {
+      led = id(x, y);
+      if (led != -1) {
+        ALL[led] = CRGB(50, 200 * (y%2==1), 200*(y%2==0));
+      }
+    }
+  }
+  // if ((led = id(0, 0)) != -1) { ALL[led] = CRGB::Blue;}
+  // else {FastLED.clear();}
+  // if ((led = id(1, 1)) != -1) { ALL[led] = CRGB::Blue;}
+  // else {FastLED.clear();}
+  FastLED.show();
+}
 // ############ DEFILE ###############
 void defile(unsigned int transition){
   FastLED.clear(true);
@@ -85,16 +175,16 @@ void rainbowCycle(int SpeedDelay) {
   byte *c;
   uint16_t i, j;
 
-for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-  for(i=0; i< NUM_LEDS_ALL; i++) {
-    c=Wheel(((i * 256 / NUM_LEDS_CHEST) + j) & 255);
-    setPixel(i, *c, *(c+1), *(c+2));
-    if (FromLoop == 0){ return;}
-    ForBreak();
+  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+    for(i=0; i< NUM_LEDS_ALL; i++) {
+      c=Wheel(((i * 256 / NUM_LEDS_CHEST) + j) & 255);
+      setPixel(i, *c, *(c+1), *(c+2));
+      if (FromLoop == 0){ return;}
+      ForBreak();
+    }
+    showStrip();
+    WasteTime(SpeedDelay);
   }
-  showStrip();
-  WasteTime(SpeedDelay);
-}
 }
 
 byte * Wheel(byte WheelPos) {
@@ -148,6 +238,7 @@ void setPixel(int Pixel, byte red, byte green, byte blue) {
 
 // ############################################################ SECOND ORDER FONCTIONS ##################################################################################
 
+// set all pixels to the given color
 void commit(unsigned int r, unsigned int v, unsigned int b){
 
   for(int i = 0; i < NUM_LEDS_ALL; i++) {
