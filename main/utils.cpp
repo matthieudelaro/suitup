@@ -5,7 +5,7 @@ unsigned long previousMillis = 0;
 bool FromLoop = 0;
 byte current = 97;
 
-short id(byte x, byte y) {
+short id(signed char x, signed char y) {
     if (!B(0, x, WIDTH) || !B(0, y, HEIGHT)) { // void pixels
         return -1;
     } else if (B(0, x, LENGTH_ARM) && B(0, y, FAT_ARM)) { // left arm (seen from the audience)

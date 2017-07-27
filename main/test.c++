@@ -4,6 +4,7 @@
 
 #include "utils.h"
 #include "gtest/gtest.h"
+#include "cmath"
 using namespace std;
 
 namespace {
@@ -83,6 +84,30 @@ TEST_F(FooTest, idFunction) {
     // }
 
     cout << "WxH:" << WIDTH << "x" << HEIGHT << endl;
+}
+
+struct CRGB {
+  byte r, g, b;
+
+  CRGB(byte r, byte g, byte b) {
+    this->r = r;
+    this->g = g;
+    this->b = b;
+  }
+};
+
+
+
+TEST_F(FooTest, testGradient) {
+    // gradient(CRGB(222, 69, 228), CRGB(232, 246, 93),
+    gradient(CRGB(0, 0, 0), CRGB(0, 0, 255),
+        1000,
+        5,
+        0, HEIGHT/2,
+        WIDTH/2, HEIGHT/2
+        // -10, HEIGHT/2,
+        // WIDTH + 10, HEIGHT/2
+      ); // purpul to yellow, left to right
 }
 
 }  // namespace
