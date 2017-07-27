@@ -454,7 +454,7 @@ void commit(unsigned int r, unsigned int v, unsigned int b){
 
 void WasteTime(long interval){
   unsigned long initialMillis = millis();
-  if (FromLoop == 0) { interval = 0;}
+  if (FromLoop == 0) { return;}
   while (millis() - initialMillis <= interval && FromLoop != 0)
   {
     if (Serial1.available() > 0)
