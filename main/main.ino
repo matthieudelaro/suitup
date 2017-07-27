@@ -93,6 +93,7 @@ void representation(char step) {
         5,
         0, 0,
         WIDTH, 0,
+        true,
         false
       );
       WasteTime(1000 * (54 - 53) - (millis() - startingTime));
@@ -103,6 +104,7 @@ void representation(char step) {
         5,
         WIDTH, 0,
         0, HEIGHT,
+        false, // moving dot
         false
       );
       WasteTime(1000 * (55 - 54) - (millis() - startingTime));
@@ -113,6 +115,7 @@ void representation(char step) {
         5,
         0, HEIGHT,
         WIDTH, 0,
+        false, // moving dot
         false
       );
       WasteTime(1000 * (56 - 55) - (millis() - startingTime));
@@ -123,6 +126,7 @@ void representation(char step) {
         5,
         0, HEIGHT,
         WIDTH, 0,
+        false, // moving dot
         false
       );
       WasteTime(1000 * ((60*1 + 8) - 56) - (millis() - startingTime));
@@ -169,7 +173,7 @@ void representation(char step) {
 // The total duration of the effect will be "duration" milliseconds.
 // (bx,by) gives the starting position.
 // (ex,ey) gives the ending position.
-void gradient(const CRGB origin, const CRGB end, const unsigned short duration, const unsigned char stroke, const signed char bx, const signed char by, const signed char ex, const signed char ey, const bool reverse) {
+void gradient(const CRGB origin, const CRGB end, const unsigned short duration, const unsigned char stroke, const signed char bx, const signed char by, const signed char ex, const signed char ey, const bool lineElseDot, const bool reverse) {
   const byte transition = 1000 / 30; // 30 fps
   const unsigned short frames = duration / transition;
   const signed char dx = ex - bx, dy = ey - by; // (dx, dy) : overall movement
@@ -209,19 +213,31 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
 
           // determine if the color should be displayed, based on the frame number
           if (B(percentageOfProgressionOfAnimation - strokeAsPercentage, distance, (reverse ? percentageOfProgressionOfAnimation+1 : percentageOfProgressionOfAnimation))) {
-            // TODO: create feature: make sure, it goes only in the right direction
-            // const float vectorLineToPointX = (bx + dx * percentageOfProgressionOfAnimation) - x;
-            // const float vectorLineToPointY = (by + dy * percentageOfProgressionOfAnimation) - y;
-            // float distanceToLine = sqrt(vectorLineToPointX*vectorLineToPointX + vectorLineToPointY*vectorLineToPointY);
-            // if (distanceToLine <= stroke) {
-              // float colorCoefficient = max(distance - 0.5, 0.5 - distance)
-              // const float colorCoefficient = distance; //sigmoid(distance); // TODO: use some kind of sigmoid
-              ALL[ledID] = CRGB(
+            // float colorCoefficient;
+            // #define D1 0.40f
+            // #define V1 0.20f
+
+            // #define D2 0.60f
+            // #define V2 0.80f
+
+            // if (B(0, percentageOfProgressionOfAnimation, D1)) {
+            //   colorCoefficient = distance * (V1 / D1)
+            // }
+            const CRGB color = CRGB(
                 origin.r + (byte)(dr * distance),
                 origin.g + (byte)(dg * distance),
                 origin.b + (byte)(db * distance));
-            // }
-
+            if (lineElseDot) { // the wave looks like a moving line
+              ALL[ledID] = color;
+            } else { // the wave looks like a moving dot
+              const float vectorLineToPointX = (bx + dx * percentageOfProgressionOfAnimation) - x;
+              const float vectorLineToPointY = (by + dy * percentageOfProgressionOfAnimation) - y;
+              float distanceToLine = sqrt(vectorLineToPointX*vectorLineToPointX + vectorLineToPointY*vectorLineToPointY);
+              if (distanceToLine <= stroke/2) {
+                // const float colorCoefficient = distance; //sigmoid(distance); // TODO: use some kind of sigmoid
+                ALL[ledID] = color;
+              }
+            }
           }
           else {
             ALL[ledID] = CRGB(0,0,0);
