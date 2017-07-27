@@ -17,7 +17,7 @@ void setup() {
 
   Serial1.begin(9600);
 
-  current = 2;
+  current = '1';
 }
 
 void loop() {
@@ -42,7 +42,7 @@ void loop() {
   else if (current == 40) {testRainbow();}
   // if (current == 39) {expandingCircle(250, 250, 250, 15, 10, 3, 50);}
   else if (current == 39) {flash(250, 250, 250, 10, 40, 300);}
-  else representation(current);
+  else if (B('0', current, '9'+1))representation(current);
 }
 
 
@@ -62,27 +62,31 @@ void loop() {
 //   }
 // }
 
-void representation(short step) {
+void representation(char step) {
   unsigned long startingTime;
   const CRGB purple = CRGB(222, 0, 228); // original value: CRGB(222, 69, 228)
   const CRGB yellow = CRGB(232, 246, 0); // original value: CRGB(232, 246, 93)
   const CRGB cyan  = CRGB(0, 250, 243);  // original value: CRGB(105, 250, 243)
+
+  Serial1.print("Representation, starting at step ");
+  Serial1.print(step);
+
   switch(step) {
-    case 0:
+    case '0':
       WasteTime(1000 * 38); // wait until 0:38 (0 minutes 38 seconds)
-    case 1:
+    case '1':
       startingTime = millis();
       flash(255, 255, 255, 1, 1000, 1000);
       WasteTime(1000 * (49 - 38) - (millis() - startingTime)); // wait until 0:49
-    case 2:
+    case '2':
       startingTime = millis();
       flash(93, 221, 221, 3, 40, 300); // blue flash
       WasteTime(1000 * (51 - 49) - (millis() - startingTime)); // wait until 51
-    case 3:
+    case '3':
       startingTime = millis();
       expandingCircle(93, 221, 221, WIDTH/2, -10, 5, 50); // blue from center, expanding to left and right
       WasteTime(1000 * (53 - 51) - (millis() - startingTime));
-    case 4:
+    case '4':
       startingTime = millis();
       gradient(cyan, yellow,
         1000,
@@ -92,7 +96,7 @@ void representation(short step) {
         false
       );
       WasteTime(1000 * (54 - 53) - (millis() - startingTime));
-    case 5:
+    case '5':
       startingTime = millis();
       gradient(cyan, purple,
         1000,
@@ -102,7 +106,7 @@ void representation(short step) {
         false
       );
       WasteTime(1000 * (55 - 54) - (millis() - startingTime));
-    case 6:
+    case '6':
       startingTime = millis();
       gradient(purple, yellow,
         1000,
@@ -112,7 +116,7 @@ void representation(short step) {
         false
       );
       WasteTime(1000 * (56 - 55) - (millis() - startingTime));
-    case 7:
+    case '7':
       startingTime = millis();
       gradient(purple, yellow,
         1000,
@@ -122,11 +126,11 @@ void representation(short step) {
         false
       );
       WasteTime(1000 * ((60*1 + 8) - 56) - (millis() - startingTime));
-    case 8:
+    case '8':
       startingTime = millis();
       flash(255, 255, 255, 8, 100, 300);
       WasteTime(1000 * ((60*1 + 34) - (60*1 + 8)) - (millis() - startingTime));
-    case 9:
+    case '9':
       startingTime = millis();
       commit(255, 255, 255);
       WasteTime(1000);
@@ -134,6 +138,7 @@ void representation(short step) {
       WasteTime(1000);
       commit(0, 0, 0);
   }
+  Serial1.print("Representation: Done");
 }
 
 // float sigmoid(float x)
@@ -174,10 +179,10 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
   unsigned long startingLoopAt;
   for (unsigned short t = 0; t < frames; ++t) { // for each frame of the transition
     startingLoopAt = millis();
-    const float percentageOfProgressionOfAnimation = (float)(t+1) / (float)(frames); // TODO: use in lines under this
+    const float percentageOfProgressionOfAnimation = (float)(t+1) / (float)(frames);
     // (cx,cy) : current position of the front of the wave
-    signed char cx = bx + (signed char)(((float)dx * percentageOfProgressionOfAnimation));// TODO: test without cast to float
-    signed char cy = by + (signed char)(((float)dy * percentageOfProgressionOfAnimation));// TODO: test without cast to float
+    signed char cx = bx + (signed char)(((float)dx * percentageOfProgressionOfAnimation));
+    signed char cy = by + (signed char)(((float)dy * percentageOfProgressionOfAnimation));
 
     // compute the color of each LED
     short ledID;
@@ -228,9 +233,9 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
     // display the frame
     FastLED.show();
     if (FromLoop == 0){ return;}
-    WasteTime(transition - (millis() - startingLoopAt)); // TODO: here, as well as in all animation: take computation time into account
+    WasteTime(transition - (millis() - startingLoopAt));
   }
-  commit(0,0,0);
+  commit(0,0,0); // TODO: replace this with a fading out of the stroke at the end of the animation
 }
 
 // @param: x,y : center
@@ -450,7 +455,7 @@ void commit(unsigned int r, unsigned int v, unsigned int b){
 void WasteTime(long interval){
   unsigned long initialMillis = millis();
   if (FromLoop == 0) { interval = 0;}
-  while (millis() - initialMillis <= interval)
+  while (millis() - initialMillis <= interval && FromLoop != 0)
   {
     if (Serial1.available() > 0)
     {
