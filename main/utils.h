@@ -34,6 +34,19 @@ extern byte current;
                     // printf("Vous etes majeur %s\n", nom);
 
 #define B(minInclude, x, maxExclude) (minInclude <= x && x < maxExclude)
+// #define WAIT(duration)  if (duration > 0) \
+//                             WasteTime(duration); \
+//                         else \
+//                             if (Serial1.available() > 0) \
+//                             { \
+//                               incomingByte = Serial1.read(); \
+//                               Serial1.print("I received (DEC): "); \
+//                               Serial1.println(incomingByte); \
+//                               current = incomingByte; \
+//                               FromLoop = 0; \
+//                               FastLED.clear(true); \
+//                             } \
+
 
 // Return the index of the LED (in the array ALL)
 // as if it was a 2D-array, with (0,0) being in the top-left corner

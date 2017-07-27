@@ -17,7 +17,7 @@ void setup() {
 
   Serial1.begin(9600);
 
-  current = 4;
+  current = 2;
 }
 
 void loop() {
@@ -63,55 +63,102 @@ void loop() {
 // }
 
 void representation(short step) {
+  unsigned long startingTime;
+  const CRGB purple = CRGB(222, 0, 228); // original value: CRGB(222, 69, 228)
+  const CRGB yellow = CRGB(232, 246, 0); // original value: CRGB(232, 246, 93)
+  const CRGB cyan  = CRGB(0, 250, 243);  // original value: CRGB(105, 250, 243)
   switch(step) {
     case 0:
       WasteTime(1000 * 38); // wait until 0:38 (0 minutes 38 seconds)
     case 1:
+      startingTime = millis();
       flash(255, 255, 255, 1, 1000, 1000);
-      WasteTime(1000 * (49 - 38) - 1*1000); // wait until 0:49
+      WasteTime(1000 * (49 - 38) - (millis() - startingTime)); // wait until 0:49
     case 2:
+      startingTime = millis();
       flash(93, 221, 221, 3, 40, 300); // blue flash
-      WasteTime(1000 * (49 - 51) - 3*300);
+      WasteTime(1000 * (51 - 49) - (millis() - startingTime)); // wait until 51
     case 3:
+      startingTime = millis();
       expandingCircle(93, 221, 221, WIDTH/2, -10, 5, 50); // blue from center, expanding to left and right
-      WasteTime(1000 * (51 - 53));
+      WasteTime(1000 * (53 - 51) - (millis() - startingTime));
     case 4:
-      // for (int i = 0; i < 10; ++i)
-      // {
-      //   commit(200, 100, 0);
-      //   WasteTime(2000);
-      //   commit(10, 10, 10);
-      //   WasteTime(2000);
-      //   commit(255, 255, 255);
-      //   WasteTime(2000);
-      //   commit(100, 100, 100);
-      //   WasteTime(2000);
-      //   commit(0, 0, 10);
-      //   WasteTime(2000);
-      //   commit(0, 0, 255);
-      //   WasteTime(2000);
-      // }
-
-      gradient(CRGB(222, 69, 228), CRGB(232, 246, 93),
-      // gradient(CRGB(255, 0, 0), CRGB(255, 255, 0),
-      // gradient(CRGB(255, 0, 0), CRGB(255, 255, 0),
-      // gradient(CRGB(255, 0, 0), CRGB(0, 0, 255),
-      // gradient(CRGB(50, 0, 0), CRGB(0, 0, 50),
+      startingTime = millis();
+      gradient(cyan, yellow,
         1000,
         5,
-        // 10, 10,
-        // 10, 20
         0, 0,
-        WIDTH, 0
-        // 8+3, HEIGHT/2,
-        // 8+WIDTH_CHEST-3, HEIGHT/2
-        // -10, HEIGHT/2,
-        // WIDTH + 10, HEIGHT/2
-        , false
-      ); // purple to yellow, left to right
-
+        WIDTH, 0,
+        false
+      );
+      WasteTime(1000 * (54 - 53) - (millis() - startingTime));
+    case 5:
+      startingTime = millis();
+      gradient(cyan, purple,
+        1000,
+        5,
+        WIDTH, 0,
+        0, HEIGHT,
+        false
+      );
+      WasteTime(1000 * (55 - 54) - (millis() - startingTime));
+    case 6:
+      startingTime = millis();
+      gradient(purple, yellow,
+        1000,
+        5,
+        0, HEIGHT,
+        WIDTH, 0,
+        false
+      );
+      WasteTime(1000 * (56 - 55) - (millis() - startingTime));
+    case 7:
+      startingTime = millis();
+      gradient(purple, yellow,
+        1000,
+        5,
+        0, HEIGHT,
+        WIDTH, 0,
+        false
+      );
+      WasteTime(1000 * ((60*1 + 8) - 56) - (millis() - startingTime));
+    case 8:
+      startingTime = millis();
+      flash(255, 255, 255, 8, 100, 300);
+      WasteTime(1000 * ((60*1 + 34) - (60*1 + 8)) - (millis() - startingTime));
+    case 9:
+      startingTime = millis();
+      commit(255, 255, 255);
+      WasteTime(1000);
+      commit(100, 100, 100);
+      WasteTime(1000);
+      commit(0, 0, 0);
   }
 }
+
+// float sigmoid(float x)
+// {
+//      float exp_value;
+//      float return_value;
+
+//      /*** Exponential calculation ***/
+//      exp_value = exp(-x);
+
+//      /*** Final sigmoid value ***/
+//      return_value = 1 / (1 + exp_value);
+
+//      return return_value;
+// }
+
+// double sigmoid(float x) {
+//   if (fabs(x) < -3.357e-10) {
+//     return x;
+//   }
+//   else {
+//     return atan(x);
+//   }
+// }
+
 
 // Gradient effect, using the color given by "origin", until the color "end".
 // The total duration of the effect will be "duration" milliseconds.
@@ -124,7 +171,9 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
   const float length = sqrt(dx*dx + dy*dy);
   const float strokeAsPercentage = (float)(stroke) / length;
   const signed short dr = end.r - origin.r, dg = end.g - origin.g, db = end.b - origin.b; // overall RGB color change (dr, dg, db)
+  unsigned long startingLoopAt;
   for (unsigned short t = 0; t < frames; ++t) { // for each frame of the transition
+    startingLoopAt = millis();
     const float percentageOfProgressionOfAnimation = (float)(t+1) / (float)(frames); // TODO: use in lines under this
     // (cx,cy) : current position of the front of the wave
     signed char cx = bx + (signed char)(((float)dx * percentageOfProgressionOfAnimation));// TODO: test without cast to float
@@ -160,6 +209,8 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
             // const float vectorLineToPointY = (by + dy * percentageOfProgressionOfAnimation) - y;
             // float distanceToLine = sqrt(vectorLineToPointX*vectorLineToPointX + vectorLineToPointY*vectorLineToPointY);
             // if (distanceToLine <= stroke) {
+              // float colorCoefficient = max(distance - 0.5, 0.5 - distance)
+              // const float colorCoefficient = distance; //sigmoid(distance); // TODO: use some kind of sigmoid
               ALL[ledID] = CRGB(
                 origin.r + (byte)(dr * distance),
                 origin.g + (byte)(dg * distance),
@@ -177,8 +228,9 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
     // display the frame
     FastLED.show();
     if (FromLoop == 0){ return;}
-    WasteTime(transition); // TODO: here, as well as in all animation: take computation time into account
+    WasteTime(transition - (millis() - startingLoopAt)); // TODO: here, as well as in all animation: take computation time into account
   }
+  commit(0,0,0);
 }
 
 // @param: x,y : center
@@ -187,8 +239,10 @@ void expandingCircle(const byte r, const byte g, const byte b, const byte x, con
   FastLED.clear(true);
   char radius = 0;
   short ledID;
+  unsigned long startingLoopAt;
 
   for (byte state = 0; state < 35; ++state) { // TODO: make a while with a good condition
+    startingLoopAt = millis();
     // for(short i = 0; i < NUM_LEDS_ALL; i++) { // nice hallow effect
     //   ALL[i] = CRGB(state, state, state);
     // }
@@ -215,18 +269,22 @@ void expandingCircle(const byte r, const byte g, const byte b, const byte x, con
     }
     FastLED.show();
     if (FromLoop == 0){ return;}
-    WasteTime(transition);
+    WasteTime(transition - (millis() - startingLoopAt));
     ++radius;
   }
 }
 
 void flash(const byte r, const byte g, const byte b, const byte beats, const short duration, const short period) {
   FastLED.clear(true);
+  unsigned long startingLoopAt;
+
   for (byte i = beats; i > 0; --i) {
+    startingLoopAt = millis();
     commit(r,g,b);
     WasteTime(duration);
     commit(0,0,0);
-    WasteTime(period - duration); // because duration/2 might be troncated (integers :( )
+    WasteTime(period - (millis() - startingLoopAt));
+    // WasteTime(period - duration); // because duration/2 might be troncated (integers :( )
   }
 }
 
@@ -389,7 +447,7 @@ void commit(unsigned int r, unsigned int v, unsigned int b){
   delay(10);
 }
 
-void WasteTime(unsigned long interval){
+void WasteTime(long interval){
   unsigned long initialMillis = millis();
   if (FromLoop == 0) { interval = 0;}
   while (millis() - initialMillis <= interval)
@@ -405,6 +463,9 @@ void WasteTime(unsigned long interval){
       current = incomingByte;
       FromLoop = 0;
       FastLED.clear(true);
+    }
+    if (interval <= 0) { // make sure that we don't wait when interval < 0
+      return;
     }
   }
 }
