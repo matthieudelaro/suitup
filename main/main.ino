@@ -1,5 +1,10 @@
 #include "FastLED.h"
+
+#define SERIAL_USB 1
+// #define SERIAL_RADIO 1
+
 #include "utils.h"
+
 
 CRGB ALL[NUM_LEDS_ALL];
 
@@ -15,21 +20,21 @@ void setup() {
   //For Skirt
   //FastLED.addLeds<NEOPIXEL, 5>(ALL, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R, NUM_LEDS_SKIRT);
 
-  Serial1.begin(9600);
+  SERIAL.begin(9600);
 
-  current = '1';
+  current = '+';
 }
 
 void loop() {
   FastLED.clear(true);
   FromLoop = 1;
-  if (Serial1.available() > 0) {
+  if (SERIAL.available() > 0) {
                 // read the incoming byte:
-    incomingByte = Serial1.read();
+    incomingByte = SERIAL.read();
 
                 // say what you got:
-    Serial1.print("I received (DEC): ");
-    Serial1.println(incomingByte);
+    SERIAL.print("I received (DEC): ");
+    SERIAL.println(incomingByte);
     current = incomingByte;
     FastLED.clear(true);
   }
@@ -37,11 +42,72 @@ void loop() {
   if (current == 97){defile(80);}
   else if (current == 122){rvbWheel(32,64,64);}
   else if (current == 101){rainbowCycle(5);}
-  else if (current == 42) {testCorners();}
+  // else if (current == 42) {testCorners();}
   else if (current == 41) {testLines();}
   else if (current == 40) {testRainbow();}
   // if (current == 39) {expandingCircle(250, 250, 250, 15, 10, 3, 50);}
   else if (current == 39) {flash(250, 250, 250, 10, 40, 300);}
+  else if (current == '+') { // '+' = 43
+    SERIAL.println("Welcome in Remote Procedure Call");
+    bool done = false;
+    byte argCount = 0;
+    byte argRequired = 0;
+    String args[20];
+    char animation = '?';
+    while (!done) {
+      if (Serial.available() > 0 && !done) {
+        byte c = Serial.read();
+        // SERIAL.println("--------------");
+        // SERIAL.print(argCount);
+        // SERIAL.print(" / ");
+        // SERIAL.println(argRequired);
+        // SERIAL.print("Got ");
+        // SERIAL.println((char) c);
+        if (c == 'q') { // quit
+          animation = c;
+          argRequired = 0;
+          current = 0;
+          done = true;
+        } else if (c == 'g') { // gradient function
+          // SERIAL.println("--gradient");
+          animation = c;
+          argRequired = 14;
+        } else if (c == ' ' || c == ',' || c == '\n') {
+          // SERIAL.println("--a space");
+          if (animation != '?') {
+            if (args[argCount] != "") {
+              // SERIAL.println("-- count++");
+              argCount++;
+            }
+            if (argCount >= argRequired) {
+              // SERIAL.println("-- done");
+              done = true;
+            }
+          }
+        } else {
+          args[argCount] += (char) c;
+        }
+      }
+    }
+    SERIAL.readString(); // flush buffer
+
+    SERIAL.print("Running animation ");
+    SERIAL.print(animation);
+    for (short i = 0; i < argRequired; ++i) {
+      SERIAL.print(args[i]); SERIAL.print(",");
+    }
+    SERIAL.println("");
+    if (animation == 'q') {
+    } else if (animation == 'g') {
+      gradient(CRGB(args[0].toInt(), args[1].toInt(), args[2].toInt()), CRGB(args[3].toInt(), args[4].toInt(), args[5].toInt()),
+        args[6].toInt(),
+        args[7].toInt(),
+        args[8].toInt(), args[9].toInt(),
+        args[10].toInt(), args[11].toInt(),
+        args[12] == "true" ? true : (args[12] == "false" ? false : args[12].toInt() == 0),
+        args[13] == "true" ? true : (args[13] == "false" ? false : args[13].toInt() == 0));
+    }
+  }
   else if (B('0', current, '9'+1))representation(current);
 }
 
@@ -64,12 +130,15 @@ void loop() {
 
 void representation(char step) {
   unsigned long startingTime;
-  const CRGB purple = CRGB(222, 0, 228); // original value: CRGB(222, 69, 228)
-  const CRGB yellow = CRGB(232, 246, 0); // original value: CRGB(232, 246, 93)
-  const CRGB cyan  = CRGB(0, 250, 243);  // original value: CRGB(105, 250, 243)
+  // const CRGB purple = CRGB(222, 0, 228); // inspired from original value: CRGB(222, 69, 228)
+  // const CRGB yellow = CRGB(232, 246, 0); // inspired from original value: CRGB(232, 246, 93)
+  // const CRGB cyan  = CRGB(0, 250, 243);  // inspired from original value: CRGB(105, 250, 243)
+  const CRGB purple = CRGB(222, 69, 228); // the original value
+  const CRGB yellow = CRGB(232, 246, 93); // the original value
+  const CRGB cyan  = CRGB(105, 250, 243);  // the original value
 
-  Serial1.print("Representation, starting at step ");
-  Serial1.print(step);
+  SERIAL.print("Representation, starting at step ");
+  SERIAL.println(step);
 
   switch(step) {
     case '0':
@@ -86,8 +155,20 @@ void representation(char step) {
       startingTime = millis();
       expandingCircle(93, 221, 221, WIDTH/2, -10, 5, 50); // blue from center, expanding to left and right
       WasteTime(1000 * (53 - 51) - (millis() - startingTime));
+    // TODO: see all animations again, some are missing, some are at the place of others, ...
+    // case: at 52 => purple to yellow
+    // case: at 54 => cyan to purple
+    // case: at 55 => purple to yellow
     case '4':
       startingTime = millis();
+      // gradient(purple, yellow,
+      //   3000,
+      //   10,
+      //   0, 0,
+      //   WIDTH, 0,
+      //   true,
+      //   false
+      // );
       gradient(cyan, yellow,
         1000,
         5,
@@ -132,7 +213,7 @@ void representation(char step) {
       WasteTime(1000 * ((60*1 + 8) - 56) - (millis() - startingTime));
     case '8':
       startingTime = millis();
-      flash(255, 255, 255, 8, 100, 300);
+      flash(255, 255, 255, 5, 100, 300);
       WasteTime(1000 * ((60*1 + 34) - (60*1 + 8)) - (millis() - startingTime));
     case '9':
       startingTime = millis();
@@ -142,7 +223,7 @@ void representation(char step) {
       WasteTime(1000);
       commit(0, 0, 0);
   }
-  Serial1.print("Representation: Done");
+  SERIAL.println("Representation: Done");
 }
 
 // float sigmoid(float x)
@@ -195,9 +276,9 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
       for (signed char y = 0; y < HEIGHT; ++y) {
         if ((ledID = id(x, y)) != -1) { // do not bother doing any computation for pixels that won't be displayed
           // vector and distance (expressed as percentage of the overall length of the animation) between origin and current point
-          signed short cdx = x - bx, cdy = y - by;
+          const signed short cdx = x - bx, cdy = y - by;
 
-          float distance = (dx*cdx + dy*cdy) / (length*length); // does a line thanks to scalar product // dirty but works fast
+          const float distance = (dx*cdx + dy*cdy) / (length*length); // does a line thanks to scalar product // dirty but works fast
           // Other methods, kept here for the record:
             // float distance = sqrt(cdx*cdx + cdy*cdy) / length; // does a circle
             // float distance = max(cdx, cdy) / (length);// TODO: // does a kind of square
@@ -213,20 +294,25 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
 
           // determine if the color should be displayed, based on the frame number
           if (B(percentageOfProgressionOfAnimation - strokeAsPercentage, distance, (reverse ? percentageOfProgressionOfAnimation+1 : percentageOfProgressionOfAnimation))) {
-            // float colorCoefficient;
-            // #define D1 0.40f
-            // #define V1 0.20f
+            // float colorCoefficient = distance;
+            float colorCoefficient;
+            #define D1 0.35f
+            #define V1 0.20f
 
-            // #define D2 0.60f
-            // #define V2 0.80f
-
-            // if (B(0, percentageOfProgressionOfAnimation, D1)) {
-            //   colorCoefficient = distance * (V1 / D1)
-            // }
+            #define D2 0.65f
+            #define V2 0.80f
+            if (distance < D1) {
+              colorCoefficient = distance * (V1 / D1);
+            } else if (B(D1, distance, D2)) {
+              colorCoefficient = (distance - D1) * ((V2-V1) / (D2-D1)) + V1;
+              // if (colorCoefficient < 0 + V1;
+            } else if (D2 <= distance) {
+              colorCoefficient = (distance - D2) * ((1.f-V2) / (1.f-D1)) + V2;
+            }
             const CRGB color = CRGB(
-                origin.r + (byte)(dr * distance),
-                origin.g + (byte)(dg * distance),
-                origin.b + (byte)(db * distance));
+                origin.r + (byte)(dr * colorCoefficient),
+                origin.g + (byte)(dg * colorCoefficient),
+                origin.b + (byte)(db * colorCoefficient));
             if (lineElseDot) { // the wave looks like a moving line
               ALL[ledID] = color;
             } else { // the wave looks like a moving dot
@@ -234,7 +320,6 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
               const float vectorLineToPointY = (by + dy * percentageOfProgressionOfAnimation) - y;
               float distanceToLine = sqrt(vectorLineToPointX*vectorLineToPointX + vectorLineToPointY*vectorLineToPointY);
               if (distanceToLine <= stroke/2) {
-                // const float colorCoefficient = distance; //sigmoid(distance); // TODO: use some kind of sigmoid
                 ALL[ledID] = color;
               }
             }
@@ -473,14 +558,14 @@ void WasteTime(long interval){
   if (FromLoop == 0) { return;}
   while (millis() - initialMillis <= interval && FromLoop != 0)
   {
-    if (Serial1.available() > 0)
+    if (SERIAL.available() > 0)
     {
                 // read the incoming byte:
-      incomingByte = Serial1.read();
+      incomingByte = SERIAL.read();
 
                 // say what you got:
-      Serial1.print("I received (DEC): ");
-      Serial1.println(incomingByte);
+      SERIAL.print("I received (DEC): ");
+      SERIAL.println(incomingByte);
       current = incomingByte;
       FromLoop = 0;
       FastLED.clear(true);
@@ -492,14 +577,14 @@ void WasteTime(long interval){
 }
 
 void ForBreak(){
-  if (Serial1.available() > 0)
+  if (SERIAL.available() > 0)
   {
                 // read the incoming byte:
-    incomingByte = Serial1.read();
+    incomingByte = SERIAL.read();
 
                 // say what you got:
-    Serial1.print("I received (DEC): ");
-    Serial1.println(incomingByte);
+    SERIAL.print("I received (DEC): ");
+    SERIAL.println(incomingByte);
     current = incomingByte;
     FromLoop = 0;
     FastLED.clear(true);

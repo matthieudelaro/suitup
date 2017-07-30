@@ -30,6 +30,15 @@ extern byte current;
     #define HEIGHT (HEIGHT_CHEST + HEIGHT_LEG)
 #endif
 
+
+#ifdef SERIAL_USB
+  #define SERIAL Serial
+#else
+    // #ifdef SERIAL_RADIO
+      #define SERIAL Serial1
+    // #endif
+#endif
+
 // #define B(x, minInclude, max) if (x >= 18) \
                     // printf("Vous etes majeur %s\n", nom);
 
