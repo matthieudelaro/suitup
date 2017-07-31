@@ -38,6 +38,13 @@ extern byte current;
       #define SERIAL Serial1
     // #endif
 #endif
+#ifdef DEBUG // define macros to print on SERIAL in debug mode..
+    #define DSERIAL(arg) SERIAL.print(arg)
+    #define DSERIALln(arg) SERIAL.println(arg)
+#else // and to do nothing in release mode
+    #define DSERIAL(arg)
+    #define DSERIALln(arg)
+#endif
 
 // #define B(x, minInclude, max) if (x >= 18) \
                     // printf("Vous etes majeur %s\n", nom);

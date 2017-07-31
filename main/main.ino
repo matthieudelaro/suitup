@@ -1,7 +1,8 @@
 #include "FastLED.h"
 
-#define SERIAL_USB 1
-// #define SERIAL_RADIO 1
+#define SERIAL_USB 1 // See SERIAL in utils.h
+// #define SERIAL_RADIO 1 // See SERIAL in utils.h
+#define DEBUG 1 // See DSERIAL and DSERIALln in utils.h
 
 #include "utils.h"
 
@@ -22,7 +23,7 @@ void setup() {
 
   SERIAL.begin(9600);
 
-  current = '+';
+  current = '1';
 }
 
 void loop() {
@@ -57,7 +58,7 @@ void loop() {
     while (!done) {
       if (Serial.available() > 0 && !done) {
         byte c = Serial.read();
-        // SERIAL.println("--------------");
+        // SERIAL("--------------");
         // SERIAL.print(argCount);
         // SERIAL.print(" / ");
         // SERIAL.println(argRequired);
@@ -129,7 +130,6 @@ void loop() {
 // }
 
 void representation(char step) {
-  unsigned long startingTime;
   // const CRGB purple = CRGB(222, 0, 228); // inspired from original value: CRGB(222, 69, 228)
   // const CRGB yellow = CRGB(232, 246, 0); // inspired from original value: CRGB(232, 246, 93)
   // const CRGB cyan  = CRGB(0, 250, 243);  // inspired from original value: CRGB(105, 250, 243)
@@ -140,115 +140,140 @@ void representation(char step) {
   SERIAL.print("Representation, starting at step ");
   SERIAL.println(step);
 
+  const unsigned long baseBoardTime = millis(); // millis on board, when representation() gets called
+  long baseVideoTime = -1; // millis in the video, where the requested step starts (ex: step 2 => 38*1000 millisenconds)
+  long delta;
+  unsigned long currentBoardTime;
+  unsigned long dateBoardTime;
+  #define STARTAT(dateVideoTime)  if (baseVideoTime == -1) { /* In case this is the first time that STARTAT gets called */ \
+                                    baseVideoTime = dateVideoTime; \
+                                    delta = baseBoardTime - baseVideoTime; \
+                                  } \
+                                  dateBoardTime = delta + dateVideoTime; \
+                                  currentBoardTime = millis(); \
+                                  if (dateBoardTime <= currentBoardTime && dateVideoTime != 0) { /* in case the animation took too much time */ \
+                                    DSERIAL("late from "); \
+                                    DSERIAL(currentBoardTime - dateBoardTime); \
+                                    DSERIALln(" ms"); \
+                                  } else { \
+                                    DSERIAL("Waiting "); \
+                                    DSERIAL(dateBoardTime - currentBoardTime); \
+                                    DSERIALln(" ms"); \
+                                    WasteTime(dateBoardTime - currentBoardTime); \
+                                  }
+
   switch(step) {
-    case '0':
-      WasteTime(1000 * 38); // wait until 0:38 (0 minutes 38 seconds)
-    case '1':
-      startingTime = millis();
-      flash(255, 255, 255, 1, 1000, 1000);
-      WasteTime(1000 * (49 - 38) - (millis() - startingTime)); // wait until 0:49
-    case '2':
-      startingTime = millis();
-      flash(93, 221, 221, 3, 40, 300); // blue flash
-      WasteTime(1000 * (51 - 49) - (millis() - startingTime)); // wait until 51
+    case '0': STARTAT(0);
+    case '1': STARTAT(38 * 1000 + 840); flash(255, 255, 255, 1, 560, 560); // flash(r,g,b,beats,duration,period)
+    case '2': STARTAT(45 * 1000 + 840); flash(cyan.r, cyan.g, cyan.b, 5, 20, 40); // flash(r,g,b,beats,duration,period)
     case '3':
-      startingTime = millis();
-      expandingCircle(93, 221, 221, WIDTH/2, -10, 5, 50); // blue from center, expanding to left and right
-      WasteTime(1000 * (53 - 51) - (millis() - startingTime));
-    // TODO: see all animations again, some are missing, some are at the place of others, ...
-    // case: at 52 => purple to yellow
-    // case: at 54 => cyan to purple
-    // case: at 55 => purple to yellow
-    case '4':
-      startingTime = millis();
-      // gradient(purple, yellow,
-      //   3000,
-      //   10,
-      //   0, 0,
-      //   WIDTH, 0,
-      //   true,
-      //   false
-      // );
-      gradient(cyan, yellow,
-        1000,
-        5,
-        0, 0,
-        WIDTH, 0,
-        true,
-        false
-      );
-      WasteTime(1000 * (54 - 53) - (millis() - startingTime));
-    case '5':
-      startingTime = millis();
-      gradient(cyan, purple,
-        1000,
-        5,
-        WIDTH, 0,
-        0, HEIGHT,
-        false, // moving dot
-        false
-      );
-      WasteTime(1000 * (55 - 54) - (millis() - startingTime));
-    case '6':
-      startingTime = millis();
-      gradient(purple, yellow,
-        1000,
-        5,
-        0, HEIGHT,
-        WIDTH, 0,
-        false, // moving dot
-        false
-      );
-      WasteTime(1000 * (56 - 55) - (millis() - startingTime));
-    case '7':
-      startingTime = millis();
-      gradient(purple, yellow,
-        1000,
-        5,
-        0, HEIGHT,
-        WIDTH, 0,
-        false, // moving dot
-        false
-      );
-      WasteTime(1000 * ((60*1 + 8) - 56) - (millis() - startingTime));
-    case '8':
-      startingTime = millis();
-      flash(255, 255, 255, 5, 100, 300);
-      WasteTime(1000 * ((60*1 + 34) - (60*1 + 8)) - (millis() - startingTime));
-    case '9':
-      startingTime = millis();
-      commit(255, 255, 255);
-      WasteTime(1000);
-      commit(100, 100, 100);
-      WasteTime(1000);
-      commit(0, 0, 0);
+      STARTAT(52 * 1000); gradient(purple, yellow, 560, 10, // origin, end, duration,stroke,
+                                   0, 0, // bx,by,
+                                   0, WIDTH, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+      STARTAT(53 * 1000 + 560); gradient(cyan, purple, 1200, 10, // origin, end, duration,stroke,
+                                   WIDTH, 0, // bx,by,
+                                   8, HEIGHT, // ex,ey,
+                                   false, false); // lineElseDot,reverse
+                                 gradient(purple, yellow, 840, 10, // origin, end, duration,stroke,
+                                   WIDTH, 0, // bx,by,
+                                   8, HEIGHT, // ex,ey,
+                                   false, false); // lineElseDot,reverse
+
+    //   STARTAT(38); coolAnimation();
+    //   STARTAT(39); coolAnimation2();
+    // case '2':
+    //   STARTAT(50); coolAnimation3();
   }
   SERIAL.println("Representation: Done");
 }
 
-// float sigmoid(float x)
-// {
-//      float exp_value;
-//      float return_value;
-
-//      /*** Exponential calculation ***/
-//      exp_value = exp(-x);
-
-//      /*** Final sigmoid value ***/
-//      return_value = 1 / (1 + exp_value);
-
-//      return return_value;
+  // unsigned long startingTime;
+  // switch(step) {
+  //   case '0':
+  //     WasteTime(1000 * 38); // wait until 0:38 (0 minutes 38 seconds)
+  //   case '1':
+  //     startingTime = millis();
+  //     flash(255, 255, 255, 1, 1000, 1000);
+  //     WasteTime(1000 * (49 - 38) - (millis() - startingTime)); // wait until 0:49
+  //   case '2':
+  //     startingTime = millis();
+  //     flash(93, 221, 221, 3, 40, 300); // blue flash
+  //     WasteTime(1000 * (51 - 49) - (millis() - startingTime)); // wait until 51
+  //   case '3':
+  //     startingTime = millis();
+  //     expandingCircle(93, 221, 221, WIDTH/2, -10, 5, 50); // blue from center, expanding to left and right
+  //     WasteTime(1000 * (53 - 51) - (millis() - startingTime));
+  //   // TODO: see all animations again, some are missing, some are at the place of others, ...
+  //   // case: at 52 => purple to yellow
+  //   // case: at 54 => cyan to purple
+  //   // case: at 55 => purple to yellow
+  //   case '4':
+  //     startingTime = millis();
+  //     // gradient(purple, yellow,
+  //     //   3000,
+  //     //   10,
+  //     //   0, 0,
+  //     //   WIDTH, 0,
+  //     //   true,
+  //     //   false
+  //     // );
+  //     gradient(cyan, yellow,
+  //       1000,
+  //       5,
+  //       0, 0,
+  //       WIDTH, 0,
+  //       true,
+  //       false
+  //     );
+  //     WasteTime(1000 * (54 - 53) - (millis() - startingTime));
+  //   case '5':
+  //     startingTime = millis();
+  //     gradient(cyan, purple,
+  //       1000,
+  //       5,
+  //       WIDTH, 0,
+  //       0, HEIGHT,
+  //       false, // moving dot
+  //       false
+  //     );
+  //     WasteTime(1000 * (55 - 54) - (millis() - startingTime));
+  //   case '6':
+  //     startingTime = millis();
+  //     gradient(purple, yellow,
+  //       1000,
+  //       5,
+  //       0, HEIGHT,
+  //       WIDTH, 0,
+  //       false, // moving dot
+  //       false
+  //     );
+  //     WasteTime(1000 * (56 - 55) - (millis() - startingTime));
+  //   case '7':
+  //     startingTime = millis();
+  //     gradient(purple, yellow,
+  //       1000,
+  //       5,
+  //       0, HEIGHT,
+  //       WIDTH, 0,
+  //       false, // moving dot
+  //       false
+  //     );
+  //     WasteTime(1000 * ((60*1 + 8) - 56) - (millis() - startingTime));
+  //   case '8':
+  //     startingTime = millis();
+  //     flash(255, 255, 255, 5, 100, 300);
+  //     WasteTime(1000 * ((60*1 + 34) - (60*1 + 8)) - (millis() - startingTime));
+  //   case '9':
+  //     startingTime = millis();
+  //     commit(255, 255, 255);
+  //     WasteTime(1000);
+  //     commit(100, 100, 100);
+  //     WasteTime(1000);
+  //     commit(0, 0, 0);
+  // }
+  // SERIAL.println("Representation: Done");
 // }
-
-// double sigmoid(float x) {
-//   if (fabs(x) < -3.357e-10) {
-//     return x;
-//   }
-//   else {
-//     return atan(x);
-//   }
-// }
-
 
 // Gradient effect, using the color given by "origin", until the color "end".
 // The total duration of the effect will be "duration" milliseconds.
@@ -388,8 +413,10 @@ void flash(const byte r, const byte g, const byte b, const byte beats, const sho
     startingLoopAt = millis();
     commit(r,g,b);
     WasteTime(duration);
+    if (FromLoop == 0) {return;}
     commit(0,0,0);
     WasteTime(period - (millis() - startingLoopAt));
+    if (FromLoop == 0) {return;}
     // WasteTime(period - duration); // because duration/2 might be troncated (integers :( )
   }
 }
