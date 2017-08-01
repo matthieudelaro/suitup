@@ -15,6 +15,7 @@ extern byte incomingByte; // for incoming Serial1 data
 extern unsigned long previousMillis;
 extern bool FromLoop;
 extern byte current;
+extern const struct CRGB purple, yellow, cyan;
 
 #define LENGTH_ARM 8
 #define FAT_ARM (NUM_LEDS_ARM_R/LENGTH_ARM)

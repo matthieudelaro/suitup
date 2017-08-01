@@ -6,24 +6,39 @@
 
 #include "utils.h"
 
+// const CRGB purple = CRGB(222, 0, 228); // inspired from original value: CRGB(222, 69, 228)
+// const CRGB yellow = CRGB(232, 246, 0); // inspired from original value: CRGB(232, 246, 93)
+// const CRGB cyan  = CRGB(0, 250, 243);  // inspired from original value: CRGB(105, 250, 243)
+// const CRGB orange  = CRGB(185, 118, 0);  // inspired from original value: CRGB(185, 118, 53)
 
-CRGB ALL[NUM_LEDS_ALL];
+const CRGB purple = CRGB(128, 0, 115); // inspired from original value: CRGB(222, 69, 228)
+const CRGB yellow = CRGB(115, 123, 0); // inspired from original value: CRGB(232, 246, 93)
+const CRGB cyan  = CRGB(0, 128, 120);  // inspired from original value: CRGB(105, 250, 243)
+const CRGB orange  = CRGB(92, 59, 0);  // inspired from original value: CRGB(185, 118, 53)
+
+// const CRGB purple = CRGB(222, 69, 228); // the original value
+// const CRGB yellow = CRGB(232, 246, 93); // the original value
+// const CRGB cyan  = CRGB(105, 250, 243);  // the original value
+// const CRGB orange  = CRGB(185, 118, 53);  // the original value
+
+
+CRGB LEDs[NUM_LEDS_ALL];
 
 void setup() {
   byte x = incomingByte;
-  FastLED.addLeds<NEOPIXEL, 4>(ALL, 0, NUM_LEDS_ARM_L);
-  FastLED.addLeds<NEOPIXEL, 3>(ALL, NUM_LEDS_ARM_L+NUM_LEDS_CHEST, NUM_LEDS_ARM_R);
-  FastLED.addLeds<NEOPIXEL, 2>(ALL, NUM_LEDS_ARM_L, NUM_LEDS_CHEST);
+  FastLED.addLeds<NEOPIXEL, 4>(LEDs, 0, NUM_LEDS_ARM_L);
+  FastLED.addLeds<NEOPIXEL, 3>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST, NUM_LEDS_ARM_R);
+  FastLED.addLeds<NEOPIXEL, 2>(LEDs, NUM_LEDS_ARM_L, NUM_LEDS_CHEST);
 
   //For Trouser
-  FastLED.addLeds<NEOPIXEL, 6>(ALL, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R, NUM_LEDS_LEG_L);
-  FastLED.addLeds<NEOPIXEL, 5>(ALL, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R+NUM_LEDS_LEG_L, NUM_LEDS_LEG_R);
+  FastLED.addLeds<NEOPIXEL, 6>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R, NUM_LEDS_LEG_L);
+  FastLED.addLeds<NEOPIXEL, 5>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R+NUM_LEDS_LEG_L, NUM_LEDS_LEG_R);
   //For Skirt
-  //FastLED.addLeds<NEOPIXEL, 5>(ALL, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R, NUM_LEDS_SKIRT);
+  //FastLED.addLeds<NEOPIXEL, 5>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R, NUM_LEDS_SKIRT);
 
   SERIAL.begin(9600);
 
-  current = '6';
+  current = '7';
 }
 
 void loop() {
@@ -34,13 +49,15 @@ void loop() {
     incomingByte = SERIAL.read();
 
                 // say what you got:
-    SERIAL.print("I received (DEC): ");
-    SERIAL.println(incomingByte);
+    DSERIAL("I received (DEC): ");
+    DSERIALln(incomingByte);
     current = incomingByte;
     FastLED.clear(true);
   }
 
-  if (current == 97){defile(80);}
+  if (current == 'q') {
+    // do nothing
+  } else if (current == 97){defile(80);}
   else if (current == 122){rvbWheel(32,64,64);}
   else if (current == 101){rainbowCycle(5);}
   // else if (current == 42) {testCorners();}
@@ -76,6 +93,9 @@ void loop() {
         } else if(c == 'f') { // flash function
           animation = c;
           argRequired = 6;
+        } else if(c == 's') { // spark function
+          animation = c;
+          argRequired = 4;
         } else if (c == ' ' || c == ',' || c == '\n') {
           // SERIAL.println("--a space");
           if (animation != '?') {
@@ -102,7 +122,7 @@ void loop() {
     }
     SERIAL.println("");
     if (animation == 'q') {
-    } else if (animation == 'g') {
+    } else if (animation == 'g') { // ex: g255,255,255,0,0,0,3000,30,0,0,32,0,true,false,
       gradient(CRGB(args[0].toInt(), args[1].toInt(), args[2].toInt()), CRGB(args[3].toInt(), args[4].toInt(), args[5].toInt()),
         args[6].toInt(),
         args[7].toInt(),
@@ -112,6 +132,9 @@ void loop() {
         args[13] == "true" ? true : (args[13] == "false" ? false : args[13].toInt() == 0));
     } else if (animation == 'f') {
       flash(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt(), args[4].toInt(), args[5].toInt());
+    } else if (animation == 's') { // ex: s 10,10  5  1000,
+      spark(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt());
+      // spark(10, 10, 5, 1000/30, 1000);
     }
   }
   else if (B('0', current, '9'+1))representation(current);
@@ -125,7 +148,7 @@ void loop() {
 //     for (byte y = 0; y < HEIGHT; ++y) {
 //       if ((ledID = id(x, y)) != -1) {
 //         float distanceToCenter = sqrt(pow(x-WIDTH/2, 2) + pow(y-HEIGHT/2, 2));
-//         ALL[ledID] = CRGB(
+//         LEDs[ledID] = CRGB(
 //           () * distanceToCenter,
 //           () * distanceToCenter,
 //           () * distanceToCenter);
@@ -135,20 +158,8 @@ void loop() {
 // }
 
 void representation(char step) {
-  // const CRGB purple = CRGB(222, 0, 228); // inspired from original value: CRGB(222, 69, 228)
-  // const CRGB yellow = CRGB(232, 246, 0); // inspired from original value: CRGB(232, 246, 93)
-  // const CRGB cyan  = CRGB(0, 250, 243);  // inspired from original value: CRGB(105, 250, 243)
-
-  const CRGB purple = CRGB(128, 0, 115); // inspired from original value: CRGB(222, 69, 228)
-  const CRGB yellow = CRGB(115, 123, 0); // inspired from original value: CRGB(232, 246, 93)
-  const CRGB cyan  = CRGB(0, 128, 120);  // inspired from original value: CRGB(105, 250, 243)
-
-  // const CRGB purple = CRGB(222, 69, 228); // the original value
-  // const CRGB yellow = CRGB(232, 246, 93); // the original value
-  // const CRGB cyan  = CRGB(105, 250, 243);  // the original value
-
-  SERIAL.print("Representation, starting at step ");
-  SERIAL.println(step);
+  DSERIAL("Representation, starting at step ");
+  DSERIALln(step);
 
   const unsigned long baseBoardTime = millis(); // millis on board, when representation() gets called
   long baseVideoTime = -1; // millis in the video, where the requested step starts (ex: step 2 => 38*1000 millisenconds)
@@ -170,11 +181,20 @@ void representation(char step) {
                                   }
 
   switch(step) {
-    case '0': STARTAT(0);
-    case '1': STARTAT(38 * 1000 + 840); flash(255, 255, 255, 1, 560, 560); // flash(r,g,b,beats,duration,period)
-    case '2': STARTAT(45 * 1000 + 840); flash(cyan, 5, 20, 40); // flash(r,g,b,beats,duration,period)
+    case '0':
+      STARTAT(0);
+    case '1':
+      STARTAT(MSM(0, 38, 000));
+      STARTAT(MSM(0, 38, 840));
+      flash(255, 255, 255, 1, 560, 560); // flash(r,g,b,beats,duration,period)
+    case '2':
+      STARTAT(MSM(0, 45, 000));
+      STARTAT(MSM(0, 45, 840));
+      flash(cyan, 5, 20, 40); // flash(r,g,b,beats,duration,period)
+
+      // STARTAT(MSM(0, 47, 000)); // TODO: add other animations
     case '3':
-      STARTAT(52 * 1000); gradient(purple, yellow, 560, 10, // origin, end, duration,stroke,
+      STARTAT(MSM(0, 53, 000)); gradient(purple, yellow, 560, 10, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    true, false); // lineElseDot,reverse
@@ -182,11 +202,12 @@ void representation(char step) {
                                    WIDTH, 0, // bx,by,
                                    0, HEIGHT, // ex,ey,
                                    false, false); // lineElseDot,reverse
-                                 gradient(purple, yellow, 840, 10, // origin, end, duration,stroke,
+                                gradient(purple, yellow, 840, 10, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
     case '4':
+      STARTAT(MSM(1,07,000));
       STARTAT(MSM(1,07,520));
       flash(cyan, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
@@ -194,6 +215,7 @@ void representation(char step) {
       flash(cyan, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
     case '5':
+      STARTAT(MSM(1, 12, 000));
       STARTAT(MSM(1, 12, 680)); gradient(yellow, cyan, 2000, 10, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
@@ -203,31 +225,49 @@ void representation(char step) {
                                    WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
     case '6':
+      STARTAT(MSM(1, 21, 000));
+
       STARTAT(MSM(1, 21, 880));
-      heart(purple, 700);
+      // heart(purple, 700);
+      spark(13,4,4, 400);
       commit(0, 0, 0);
+
       STARTAT(MSM(1, 22, 880));
-      heart(cyan, 700);
+      // heart(cyan, 700);
+      spark(20,10,4, 400);
       commit(0, 0, 0);
+
       STARTAT(MSM(1, 23, 880));
-      heart(yellow, 700);
+      // heart(yellow, 700);
+      spark(10,20,4, 400);
       commit(0, 0, 0);
+
       STARTAT(MSM(1, 24, 880));
-      heart(purple, 700);
+      // heart(purple, 700);
+      spark(20,10,4, 400);
       commit(0, 0, 0);
+
       STARTAT(MSM(1, 25, 800));
-      heart(cyan, 700);
+      // heart(cyan, 700);
+      spark(13,6,4, 400);
       commit(0, 0, 0);
+
       STARTAT(MSM(1, 26, 800));
-      heart(yellow, 700);
+      // heart(yellow, 700);
+      spark(16,10,3, 400);
       commit(0, 0, 0);
+
       STARTAT(MSM(1, 27, 800));
-      heart(purple, 700);
+      // heart(purple, 700);
+      spark(10,15,5, 400);
       commit(0, 0, 0);
+
       STARTAT(MSM(1, 29, 200));
-      heart(cyan, 700);
+      // heart(cyan, 700);
+      spark(20,10,4, 400);
       commit(0, 0, 0);
     case '7':
+      STARTAT(MSM(1,33,000));
       STARTAT(MSM(1,33,640));
       commit(255, 255, 255);
       STARTAT(MSM(1,35,600));
@@ -235,14 +275,62 @@ void representation(char step) {
       STARTAT(MSM(1,40,000));
       commit(0, 0, 0);
   }
-  SERIAL.println("Representation: Done");
+  DSERIALln("Representation: Done");
+}
+
+void spark(const signed char bx, const signed char by, short radius, const unsigned long duration){
+  const byte transition = 1000 / 30; // 30 fps
+  const unsigned long startingTime = millis();
+  const unsigned short frames = duration / transition;
+  radius *= radius; // use squared value instead of srqt of distance
+
+  unsigned long startingLoopAt;
+  FastLED.clear(true);
+  for (unsigned short t = 0; t < frames; ++t) { // for each frame of the transition
+    startingLoopAt = millis();
+    const float progression = (float)(t+1) / (float)(frames);
+
+    // compute the color of each LED
+    short ledID;
+    for (signed char x = 0; x < WIDTH; ++x) { // TODO: work only in the square of end and origin
+      for (signed char y = 0; y < HEIGHT; ++y) {
+        if ((ledID = id(x, y)) != -1) { // do not bother doing any computation for pixels that won't be displayed
+          // vector and distance (expressed as percentage of the overall length of the animation) between origin and current point
+          const signed char cdx = x - bx, cdy = y - by;
+          const float distance = (cdx*cdx + cdy*cdy); // use squared value instead of srqt of distance
+
+
+          // determine if the color should be displayed, based on the frame number
+          if (distance < radius * progression) {
+            if (LEDs[ledID].r != 0 && LEDs[ledID].g != 0 && LEDs[ledID].b != 0) { // if the color of the LED is not black
+              // do nothing, the color has already been computed
+            } else {
+                if (ledID%4 == 0){LEDs[ledID] = cyan;}
+                else if (ledID%4 == 1){LEDs[ledID] = yellow;}
+                else if (ledID%4 == 2){LEDs[ledID] = purple;}
+                else if (ledID%4 == 3){LEDs[ledID] = orange;}
+            }
+          }
+        }
+      }
+    }
+
+    FastLED.show();
+    if (FromLoop == 0){ return;}
+    WasteTime(transition);
+  }
+
+  // display the frame
+  FastLED.show();
+  if (FromLoop == 0){ return;}
+  WasteTime(duration - (millis() - startingTime));
 }
 
 void heart(const byte r, const byte g, const byte b, const unsigned int duration) {
   heart(CRGB(r, g, b), duration);
 }
 void heart(const CRGB color, const unsigned int duration) {
-  unsigned long startingTime = millis();
+  const unsigned long startingTime = millis();
   FastLED.clear(true);
 
   short ledID;
@@ -280,9 +368,9 @@ void heart(const CRGB color, const unsigned int duration) {
         byte x = 9 + i % 14;
         byte y = 3 + i / 14;
         if ((ledID = id(x, y)) != -1) {
-          ALL[ledID].r = color.r * ((9 - pow(percentageOfProgressionOfAnimation*3, 2)) / 9);
-          ALL[ledID].g = color.g * ((9 - pow(percentageOfProgressionOfAnimation*3, 2)) / 9);
-          ALL[ledID].b = color.b * ((9 - pow(percentageOfProgressionOfAnimation*3, 2)) / 9);
+          LEDs[ledID].r = color.r * ((9 - pow(percentageOfProgressionOfAnimation*3, 2)) / 9);
+          LEDs[ledID].g = color.g * ((9 - pow(percentageOfProgressionOfAnimation*3, 2)) / 9);
+          LEDs[ledID].b = color.b * ((9 - pow(percentageOfProgressionOfAnimation*3, 2)) / 9);
         }
       }
     }
@@ -347,7 +435,7 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
 
           // determine if the color should be displayed, based on the frame number
           if (B(percentageOfProgressionOfAnimation - strokeAsPercentage, distance, (reverse ? percentageOfProgressionOfAnimation+1 : percentageOfProgressionOfAnimation))) {
-            if (ALL[ledID].r != 0 && ALL[ledID].g != 0 && ALL[ledID].b != 0) { // if the color of the LED is not black
+            if (LEDs[ledID].r != 0 && LEDs[ledID].g != 0 && LEDs[ledID].b != 0) { // if the color of the LED is not black
               // do nothing, the color has already been computed
             } else {
               // float colorCoefficient = distance;
@@ -370,19 +458,19 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
                   origin.g + (byte)(dg * colorCoefficient),
                   origin.b + (byte)(db * colorCoefficient));
               if (lineElseDot) { // the wave looks like a moving line
-                ALL[ledID] = color;
+                LEDs[ledID] = color;
               } else { // the wave looks like a moving dot
                 const float vectorLineToPointX = (bx + dx * percentageOfProgressionOfAnimation) - x;
                 const float vectorLineToPointY = (by + dy * percentageOfProgressionOfAnimation) - y;
                 float distanceToLine = sqrt(vectorLineToPointX*vectorLineToPointX + vectorLineToPointY*vectorLineToPointY);
                 if (distanceToLine <= stroke/2) {
-                  ALL[ledID] = color;
+                  LEDs[ledID] = color;
                 }
               }
             }
           }
           else {
-            ALL[ledID] = CRGB(0,0,0);
+            LEDs[ledID] = CRGB(0,0,0);
           }
         }
       }
@@ -407,10 +495,10 @@ void expandingCircle(const byte r, const byte g, const byte b, const byte x, con
   for (byte state = 0; state < 35; ++state) { // TODO: make a while with a good condition
     startingLoopAt = millis();
     // for(short i = 0; i < NUM_LEDS_ALL; i++) { // nice hallow effect
-    //   ALL[i] = CRGB(state, state, state);
+    //   LEDs[i] = CRGB(state, state, state);
     // }
     for(short i = 0; i < NUM_LEDS_ALL; i++) {
-      ALL[i] = CRGB(0, 0, 0);
+      LEDs[i] = CRGB(0, 0, 0);
     }
     for (char dx = -radius; dx <= radius; ++dx) {
       for (char dy = -radius; dy <= radius; ++dy) {
@@ -418,13 +506,13 @@ void expandingCircle(const byte r, const byte g, const byte b, const byte x, con
         if (radius < stroke){
           if (distance <= radius) {
             if ((ledID = id(x+dx, y+dy)) != -1) {
-              ALL[ledID] = CRGB(r, g, b);
+              LEDs[ledID] = CRGB(r, g, b);
             }
           }
         } else {
           if (B(radius-stroke, distance, radius)) {
             if ((ledID = id(x+dx, y+dy)) != -1) {
-              ALL[ledID] = CRGB(r, g, b);
+              LEDs[ledID] = CRGB(r, g, b);
             }
           }
         }
@@ -458,10 +546,10 @@ void flash(const byte r, const byte g, const byte b, const byte beats, const sho
 
 void testCorners() {
   FastLED.clear(true);
-  ALL[id(0, 0)] = CRGB::Red;
-  ALL[id(WIDTH-1, 0)] = CRGB::Red;
-  ALL[id(0, FAT_ARM-1)] = CRGB::Green;
-  ALL[id(WIDTH-1, FAT_ARM-1)] = CRGB::Green;
+  LEDs[id(0, 0)] = CRGB::Red;
+  LEDs[id(WIDTH-1, 0)] = CRGB::Red;
+  LEDs[id(0, FAT_ARM-1)] = CRGB::Green;
+  LEDs[id(WIDTH-1, FAT_ARM-1)] = CRGB::Green;
   FastLED.show();
 }
 void testRainbow() {
@@ -471,7 +559,7 @@ void testRainbow() {
     for (byte y = 0; y < HEIGHT; ++y) {
       led = id(x, y);
       if (led != -1) {
-        ALL[led] = CRGB(4*x, 4*y, 0);
+        LEDs[led] = CRGB(4*x, 4*y, 0);
       }
     }
   }
@@ -484,13 +572,13 @@ void testLines() {
     for (byte y = 0; y < HEIGHT; ++y) {
       led = id(x, y);
       if (led != -1) {
-        ALL[led] = CRGB(50, 200 * (y%2==1), 200*(y%2==0));
+        LEDs[led] = CRGB(50, 200 * (y%2==1), 200*(y%2==0));
       }
     }
   }
-  // if ((led = id(0, 0)) != -1) { ALL[led] = CRGB::Blue;}
+  // if ((led = id(0, 0)) != -1) { LEDs[led] = CRGB::Blue;}
   // else {FastLED.clear();}
-  // if ((led = id(1, 1)) != -1) { ALL[led] = CRGB::Blue;}
+  // if ((led = id(1, 1)) != -1) { LEDs[led] = CRGB::Blue;}
   // else {FastLED.clear();}
   FastLED.show();
 }
@@ -500,10 +588,10 @@ void defile(unsigned int transition){
   int state = 0;
   for(int i = 0; i < NUM_LEDS_ALL; i++) {
     state++;
-    if (state == 1){ALL[i] = CRGB::Red;}
-    if (state == 2){ALL[i] = CRGB::Green;}
-    if (state == 3){ALL[i] = CRGB::Yellow;}
-    if (state == 4){ALL[i] = CRGB::Blue; state = 0;}
+    if (state == 1){LEDs[i] = CRGB::Red;}
+    if (state == 2){LEDs[i] = CRGB::Green;}
+    if (state == 3){LEDs[i] = CRGB::Yellow;}
+    if (state == 4){LEDs[i] = CRGB::Blue; state = 0;}
 
     FastLED.show();
     if (FromLoop == 0){ return;}
@@ -590,9 +678,9 @@ void setPixel(int Pixel, byte red, byte green, byte blue) {
   #endif
   #ifndef ADAFRUIT_NEOPIXEL_H
   // FastLED
-  ALL[Pixel].r = red;
-  ALL[Pixel].g = green;
-  ALL[Pixel].b = blue;
+  LEDs[Pixel].r = red;
+  LEDs[Pixel].g = green;
+  LEDs[Pixel].b = blue;
   #endif
 }
 
@@ -610,7 +698,7 @@ void commit(unsigned int r, unsigned int v, unsigned int b){
 
   for(int i = 0; i < NUM_LEDS_ALL; i++) {
     // set our current dot to red, green, and blue
-    ALL[i] = CRGB(r,v,b);
+    LEDs[i] = CRGB(r,v,b);
     ForBreak();
   }
 
@@ -629,8 +717,8 @@ void WasteTime(long interval){
       incomingByte = SERIAL.read();
 
                 // say what you got:
-      SERIAL.print("I received (DEC): ");
-      SERIAL.println(incomingByte);
+      DSERIAL("I received (DEC): ");
+      DSERIALln(incomingByte);
       current = incomingByte;
       FromLoop = 0;
       FastLED.clear(true);
@@ -648,8 +736,8 @@ void ForBreak(){
     incomingByte = SERIAL.read();
 
                 // say what you got:
-    SERIAL.print("I received (DEC): ");
-    SERIAL.println(incomingByte);
+    DSERIAL("I received (DEC): ");
+    DSERIALln(incomingByte);
     current = incomingByte;
     FromLoop = 0;
     FastLED.clear(true);
