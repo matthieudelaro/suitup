@@ -46,23 +46,8 @@ extern byte current;
     #define DSERIALln(arg)
 #endif
 
-// #define B(x, minInclude, max) if (x >= 18) \
-                    // printf("Vous etes majeur %s\n", nom);
-
 #define B(minInclude, x, maxExclude) (minInclude <= x && x < maxExclude)
 #define MSM(minutes, seconds, milliseconds) ((long)((60 * minutes + seconds) * 1000 + milliseconds))
-// #define WAIT(duration)  if (duration > 0) \
-//                             WasteTime(duration); \
-//                         else \
-//                             if (Serial1.available() > 0) \
-//                             { \
-//                               incomingByte = Serial1.read(); \
-//                               Serial1.print("I received (DEC): "); \
-//                               Serial1.println(incomingByte); \
-//                               current = incomingByte; \
-//                               FromLoop = 0; \
-//                               FastLED.clear(true); \
-//                             } \
 
 
 // Return the index of the LED (in the array ALL)

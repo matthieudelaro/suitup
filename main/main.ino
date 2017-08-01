@@ -188,7 +188,6 @@ void representation(char step) {
                                    false, false); // lineElseDot,reverse
     case '4':
       STARTAT(MSM(1,07,520));
-      // STARTAT((1 * 60 + 07) * 1000 + 520);
       flash(cyan, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(purple, 1, 50, 300);// flash(r,g,b,beats,duration,period)
@@ -235,13 +234,6 @@ void representation(char step) {
       commit(100, 100, 255);
       STARTAT(MSM(1,40,000));
       commit(0, 0, 0);
-
-
-
-    //   STARTAT(38); coolAnimation();
-    //   STARTAT(39); coolAnimation2();
-    // case '2':
-    //   STARTAT(50); coolAnimation3();
   }
   SERIAL.println("Representation: Done");
 }
@@ -254,28 +246,6 @@ void heart(const CRGB color, const unsigned int duration) {
   FastLED.clear(true);
 
   short ledID;
-  // // naive array method
-  // const byte bitmap[] = {0,0,0,1,1,0,0,0,0,1,1,0,0,0,
-  //       0,0,1,1,0,1,0,0,1,0,1,1,0,0,
-  //       0,1,1,0,0,0,1,1,0,0,0,1,1,0,
-  //       1,1,0,0,0,0,1,1,0,0,0,0,1,1,
-  //       1,0,0,0,0,0,1,1,0,0,0,0,0,1,
-  //       0,1,0,0,0,0,0,0,0,0,0,0,1,0,
-  //       0,1,1,0,0,0,0,0,0,0,0,1,1,0,
-  //       0,0,0,1,1,0,0,0,0,1,1,0,0,0,
-  //       0,0,0,0,1,1,0,0,1,1,0,0,0,0,
-  //       0,0,0,0,0,0,1,1,0,0,0,0,0,0,
-  //       0,0,0,0,0,0,1,1,0,0,0,0,0,0}; // 14 * 11 pixels
-
-  // for (int i = 0; i < 154; ++i) {
-  //   if (bitmap[i] == 1) {
-  //     byte x = 9 + i % 14;
-  //     byte y = 3 + i / 14;
-  //     if ((ledID = id(x, y)) != -1) {
-  //       ALL[ledID] = color;
-  //     }
-  //   }
-  // }
   // bits array method
   const byte bitmap[] =  {
                           0b00011000,
@@ -322,135 +292,12 @@ void heart(const CRGB color, const unsigned int duration) {
     if (FromLoop == 0){ return;}
     WasteTime(transition - (millis() - startingLoopAt));
   }
-  // float ledValue;
-  // // http://onemanadreaming.blogspot.fr/2014/08/mathematical-equation-of-love-heart.html
-  // // (y^2 + x^2 - 1)^3 - (x^2)*(y^3) = 0
-  // // for (short t = 0; t < 200; ++t) {
-  // //   byte x = 16 * pow(sin(t), 3);
-  // //   byte y = 13 * cos(t) - 5 * cos(2*t) - 2*cos(2*t) - cos(4*t);
-  // //   if ((ledID = id(x, y)) != -1) {
-  // //     ALL[ledID] = color;
-  // //   }
-  // // }
-  // // for (float x = 0.f; x < WIDTH; x+=1.f) {
-  //   // for (float y = 0.f; y < HEIGHT; y+=1.f) {
-  // for (byte y = 0; y < HEIGHT; ++y) {
-  //   for (byte x = 0; x < WIDTH; ++x) {
-
-  //       float fx = (((float)x - (WIDTH/2.f)) * 2.f) / (float)(WIDTH);
-  //       float fy = (((float)(HEIGHT - y) - (HEIGHT/2.f)) * 2.f) / (float)(HEIGHT);
-  //       ledValue = pow(fy*fy + fx*fx - 1, 3) - fx*fx*fy*fy*fy;
-  //     if ((ledID = id(x, y)) != -1) {
-  //       if (-0.08f < ledValue && ledValue < 0.08f) {
-  //         ALL[ledID] = CRGB(255, 0, 0);
-  //       } else if (B(-0.3f, ledValue, 0.3f)) {
-  //         ALL[ledID] = CRGB(0, 255, 0);
-  //       } else if (B(-0.6f, ledValue, 0.6f)) {
-  //         ALL[ledID] = CRGB(0, 0, 255);
-  //       }
-
-  //     }
-  //     if (ledValue >= 0.f) {
-  //       DSERIAL("+");
-  //     }
-  //     DSERIAL(ledValue);
-  //     DSERIAL(" ");
-  //   }
-  //   DSERIALln("");
-  // }
 
   // display the frame
   FastLED.show();
   if (FromLoop == 0){ return;}
   WasteTime(duration - (millis() - startingTime));
 }
-
-  // unsigned long startingTime;
-  // switch(step) {
-  //   case '0':
-  //     WasteTime(1000 * 38); // wait until 0:38 (0 minutes 38 seconds)
-  //   case '1':
-  //     startingTime = millis();
-  //     flash(255, 255, 255, 1, 1000, 1000);
-  //     WasteTime(1000 * (49 - 38) - (millis() - startingTime)); // wait until 0:49
-  //   case '2':
-  //     startingTime = millis();
-  //     flash(93, 221, 221, 3, 40, 300); // blue flash
-  //     WasteTime(1000 * (51 - 49) - (millis() - startingTime)); // wait until 51
-  //   case '3':
-  //     startingTime = millis();
-  //     expandingCircle(93, 221, 221, WIDTH/2, -10, 5, 50); // blue from center, expanding to left and right
-  //     WasteTime(1000 * (53 - 51) - (millis() - startingTime));
-  //   // TODO: see all animations again, some are missing, some are at the place of others, ...
-  //   // case: at 52 => purple to yellow
-  //   // case: at 54 => cyan to purple
-  //   // case: at 55 => purple to yellow
-  //   case '4':
-  //     startingTime = millis();
-  //     // gradient(purple, yellow,
-  //     //   3000,
-  //     //   10,
-  //     //   0, 0,
-  //     //   WIDTH, 0,
-  //     //   true,
-  //     //   false
-  //     // );
-  //     gradient(cyan, yellow,
-  //       1000,
-  //       5,
-  //       0, 0,
-  //       WIDTH, 0,
-  //       true,
-  //       false
-  //     );
-  //     WasteTime(1000 * (54 - 53) - (millis() - startingTime));
-  //   case '5':
-  //     startingTime = millis();
-  //     gradient(cyan, purple,
-  //       1000,
-  //       5,
-  //       WIDTH, 0,
-  //       0, HEIGHT,
-  //       false, // moving dot
-  //       false
-  //     );
-  //     WasteTime(1000 * (55 - 54) - (millis() - startingTime));
-  //   case '6':
-  //     startingTime = millis();
-  //     gradient(purple, yellow,
-  //       1000,
-  //       5,
-  //       0, HEIGHT,
-  //       WIDTH, 0,
-  //       false, // moving dot
-  //       false
-  //     );
-  //     WasteTime(1000 * (56 - 55) - (millis() - startingTime));
-  //   case '7':
-  //     startingTime = millis();
-  //     gradient(purple, yellow,
-  //       1000,
-  //       5,
-  //       0, HEIGHT,
-  //       WIDTH, 0,
-  //       false, // moving dot
-  //       false
-  //     );
-  //     WasteTime(1000 * ((60*1 + 8) - 56) - (millis() - startingTime));
-  //   case '8':
-  //     startingTime = millis();
-  //     flash(255, 255, 255, 5, 100, 300);
-  //     WasteTime(1000 * ((60*1 + 34) - (60*1 + 8)) - (millis() - startingTime));
-  //   case '9':
-  //     startingTime = millis();
-  //     commit(255, 255, 255);
-  //     WasteTime(1000);
-  //     commit(100, 100, 100);
-  //     WasteTime(1000);
-  //     commit(0, 0, 0);
-  // }
-  // SERIAL.println("Representation: Done");
-// }
 
 // Gradient effect, using the color given by "origin", until the color "end".
 // The total duration of the effect will be "duration" milliseconds.
