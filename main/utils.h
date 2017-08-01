@@ -22,13 +22,21 @@ extern const struct CRGB purple, yellow, cyan;
 #define WIDTH_CHEST 16
 #define WIDTH (LENGTH_ARM + WIDTH_CHEST + LENGTH_ARM)
 
-#define SUIT_FOR_MEN 1
-#ifdef SUIT_FOR_MEN
+#define SUIT_FOR_MAN 1
+#ifdef SUIT_FOR_MAN
     #define NUM_LEDS_ALL (NUM_LEDS_ARM_L+NUM_LEDS_ARM_R+NUM_LEDS_CHEST+NUM_LEDS_LEG_L+NUM_LEDS_LEG_R)
     #define HEIGHT_CHEST 14
     #define WIDTH_LEG 5
     #define HEIGHT_LEG 12
     #define HEIGHT (HEIGHT_CHEST + HEIGHT_LEG)
+#else
+    #define SUIT_FOR_GIRL 1
+    #define NUM_LEDS_ALL (NUM_LEDS_ARM_L+NUM_LEDS_ARM_R+NUM_LEDS_CHEST+NUM_LEDS_SKIRT)
+    #define HEIGHT_CHEST 14
+    #define WIDTH_SKIRT 10
+    #define HEIGHT_SKIRT 20
+    #define SKIRT_BLANK 3
+    #define HEIGHT (HEIGHT_CHEST + HEIGHT_SKIRT)
 #endif
 
 

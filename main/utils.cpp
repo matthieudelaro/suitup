@@ -5,6 +5,16 @@ unsigned long previousMillis = 0;
 bool FromLoop = 0;
 byte current = 97;
 
+// short idArmsUp(signed char x, signed char y) {
+// // short id(signed char x, signed char y, byte mode) {
+//     // if (mode == 0) {
+//         // return id(x, y);
+//     // } else if (mode == 1){ // arms up
+//         if (B(LENGTH_ARM, x, LENGTH_ARM+FAT_ARM) && B(-LENGTH_ARM, y, 0)) {
+
+//         }
+//     // }
+// }
 short id(signed char x, signed char y) {
     if (!B(0, x, WIDTH) || !B(0, y, HEIGHT)) { // void pixels
         return -1;
@@ -50,13 +60,25 @@ short id(signed char x, signed char y) {
         else if (B(HEIGHT_CHEST*15+7, temp, HEIGHT_CHEST*16)) { temp -= (7+6+5+2+4+4+2+5+6+7); }
 
         return temp + NUM_LEDS_ARM_R;
-    } else if (B(LENGTH_ARM + WIDTH_CHEST - WIDTH_LEG, x, LENGTH_ARM + WIDTH_CHEST) && B(HEIGHT_CHEST, y, HEIGHT)) { // right leg
-        return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_CHEST - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST);
-        // return -11;
-    } else if (B(LENGTH_ARM, x, LENGTH_ARM + WIDTH_LEG) && B(HEIGHT_CHEST, y, HEIGHT)) { // left leg
-        return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_LEG - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_LEG_R);
-        return -12;
-    } else {
+    }
+    #ifdef SUIT_FOR_MAN
+        else if (B(LENGTH_ARM + WIDTH_CHEST - WIDTH_LEG, x, LENGTH_ARM + WIDTH_CHEST) && B(HEIGHT_CHEST, y, HEIGHT)) { // right leg
+            return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_CHEST - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST);
+        } else if (B(LENGTH_ARM, x, LENGTH_ARM + WIDTH_LEG) && B(HEIGHT_CHEST, y, HEIGHT)) { // left leg
+            return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_LEG - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_LEG_R);
+        }
+    #else // ifdef SUIT_FOR_GIRL
+        else if (B(HEIGHT_CHEST, y, HEIGHT)) {
+            return (y - HEIGHT_CHEST) + HEIGHT_SKIRT * (WIDTH - 1 - x * SKIRT_BLANK)  +(NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST); // TODO: check this
+            // return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_LEG - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_LEG_R);
+        }
+        else if (B(LENGTH_ARM + WIDTH_CHEST - WIDTH_LEG, x, LENGTH_ARM + WIDTH_CHEST) && B(HEIGHT_CHEST, y, HEIGHT)) { // right leg
+            return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_CHEST - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST);
+        } else if (B(LENGTH_ARM, x, LENGTH_ARM + WIDTH_LEG) && B(HEIGHT_CHEST, y, HEIGHT)) { // left leg
+            return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_LEG - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_LEG_R);
+        }
+    #endif
+    else {
         return -1;
     }
 }

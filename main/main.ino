@@ -3,6 +3,7 @@
 #define SERIAL_USB 1 // See SERIAL in utils.h
 // #define SERIAL_RADIO 1 // See SERIAL in utils.h
 #define DEBUG 1 // See DSERIAL and DSERIALln in utils.h
+#define ONLY_REMOTE_SYNC 1
 
 #include "utils.h"
 
@@ -30,15 +31,17 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, 3>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST, NUM_LEDS_ARM_R);
   FastLED.addLeds<NEOPIXEL, 2>(LEDs, NUM_LEDS_ARM_L, NUM_LEDS_CHEST);
 
-  //For Trouser
-  FastLED.addLeds<NEOPIXEL, 6>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R, NUM_LEDS_LEG_L);
-  FastLED.addLeds<NEOPIXEL, 5>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R+NUM_LEDS_LEG_L, NUM_LEDS_LEG_R);
-  //For Skirt
-  //FastLED.addLeds<NEOPIXEL, 5>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R, NUM_LEDS_SKIRT);
+  #ifdef SUIT_FOR_MAN
+    //For Trouser
+    FastLED.addLeds<NEOPIXEL, 6>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R, NUM_LEDS_LEG_L);
+    FastLED.addLeds<NEOPIXEL, 5>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R+NUM_LEDS_LEG_L, NUM_LEDS_LEG_R);
+  #else
+    //For Skirt
+    FastLED.addLeds<NEOPIXEL, 5>(LEDs, NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_ARM_R, NUM_LEDS_SKIRT);
+  #endif
 
   SERIAL.begin(9600);
-
-  current = '7';
+  current = '!';
 }
 
 void loop() {
@@ -55,89 +58,24 @@ void loop() {
     FastLED.clear(true);
   }
 
-  if (current == 'q') {
+  if (current == '!') {
     // do nothing
-  } else if (current == 97){defile(80);}
-  else if (current == 122){rvbWheel(32,64,64);}
-  else if (current == 101){rainbowCycle(5);}
-  // else if (current == 42) {testCorners();}
-  else if (current == 41) {testLines();}
-  else if (current == 40) {testRainbow();}
-  // if (current == 39) {expandingCircle(250, 250, 250, 15, 10, 3, 50);}
-  else if (current == 39) {flash(250, 250, 250, 10, 40, 300);}
-  else if (current == '+') { // '+' = 43
-    SERIAL.println("Welcome in Remote Procedure Call");
-    bool done = false;
-    byte argCount = 0;
-    byte argRequired = 0;
-    String args[20];
-    char animation = '?';
-    while (!done) {
-      if (Serial.available() > 0 && !done) {
-        byte c = Serial.read();
-        // SERIAL("--------------");
-        // SERIAL.print(argCount);
-        // SERIAL.print(" / ");
-        // SERIAL.println(argRequired);
-        // SERIAL.print("Got ");
-        // SERIAL.println((char) c);
-        if (c == 'q') { // quit
-          animation = c;
-          argRequired = 0;
-          current = 0;
-          done = true;
-        } else if (c == 'g') { // gradient function
-          // SERIAL.println("--gradient");
-          animation = c;
-          argRequired = 14;
-        } else if(c == 'f') { // flash function
-          animation = c;
-          argRequired = 6;
-        } else if(c == 's') { // spark function
-          animation = c;
-          argRequired = 4;
-        } else if (c == ' ' || c == ',' || c == '\n') {
-          // SERIAL.println("--a space");
-          if (animation != '?') {
-            if (args[argCount] != "") {
-              // SERIAL.println("-- count++");
-              argCount++;
-            }
-            if (argCount >= argRequired) {
-              // SERIAL.println("-- done");
-              done = true;
-            }
-          }
-        } else {
-          args[argCount] += (char) c;
-        }
-      }
-    }
-    SERIAL.readString(); // flush buffer
-
-    SERIAL.print("Running animation ");
-    SERIAL.print(animation);
-    for (short i = 0; i < argRequired; ++i) {
-      SERIAL.print(args[i]); SERIAL.print(",");
-    }
-    SERIAL.println("");
-    if (animation == 'q') {
-    } else if (animation == 'g') { // ex: g255,255,255,0,0,0,3000,30,0,0,32,0,true,false,
-      gradient(CRGB(args[0].toInt(), args[1].toInt(), args[2].toInt()), CRGB(args[3].toInt(), args[4].toInt(), args[5].toInt()),
-        args[6].toInt(),
-        args[7].toInt(),
-        args[8].toInt(), args[9].toInt(),
-        args[10].toInt(), args[11].toInt(),
-        args[12] == "true" ? true : (args[12] == "false" ? false : args[12].toInt() == 0),
-        args[13] == "true" ? true : (args[13] == "false" ? false : args[13].toInt() == 0));
-    } else if (animation == 'f') {
-      flash(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt(), args[4].toInt(), args[5].toInt());
-    } else if (animation == 's') { // ex: s 10,10  5  1000,
-      spark(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt());
-      // spark(10, 10, 5, 1000/30, 1000);
-    }
   }
-  else if (B('0', current, '9'+1))representation(current);
+  // else if (current == 97){defile(80);}
+  // else if (current == 122){rvbWheel(32,64,64);}
+  // else if (current == 101){rainbowCycle(5);}
+  // // else if (current == 42) {testCorners();}
+  // else if (current == 41) {testLines();}
+  // else if (current == 40) {testRainbow();}
+  // // if (current == 39) {expandingCircle(250, 250, 250, 15, 10, 3, 50);}
+  // else if (current == 39) {flash(250, 250, 250, 10, 40, 300);}
+  else if (current == '+') { // '+' = 43
+    RPC();
+  }
+  else if (B('0', current, 'z'+1)) { // 48 - 122
+    representation(current);
+    current = '!';
+  }
 }
 
 
@@ -157,128 +95,265 @@ void loop() {
 //   }
 // }
 
+void RPC() {
+  DSERIALln("Welcome in Remote Procedure Call");
+  bool done = false;
+  byte argCount = 0;
+  byte argRequired = 0;
+  String args[20];
+  char animation = '?';
+  while (!done) {
+    if (Serial.available() > 0 && !done) {
+      byte c = Serial.read();
+      // DSERIAL("--------------");
+      // DSERIAL(argCount);
+      // DSERIAL(" / ");
+      // DSERIALln(argRequired);
+      // DSERIAL("Got ");
+      // DSERIALln((char) c);
+      if (animation == '?') {
+        if (c == 'q') { // quit
+          animation = c;
+          argRequired = 0;
+          done = true;
+        } else if (c == 'g') { // gradient function
+          animation = c;
+          argRequired = 14;
+        } else if(c == 'f') { // flash function
+          animation = c;
+          argRequired = 6;
+        } else if(c == 's') { // spark function
+          animation = c;
+          argRequired = 8;
+        }
+      } else if (c == ' ' || c == ',' || c == '\n') {
+        if (animation != '?') {
+          if (args[argCount] != "") {
+            argCount++;
+          }
+          if (argCount >= argRequired) {
+            done = true;
+          }
+        }
+      } else {
+        args[argCount] += (char) c;
+      }
+    }
+  }
+  SERIAL.readString(); // flush buffer
+
+  DSERIAL("Running animation ");
+  DSERIAL(animation);
+  for (short i = 0; i < argRequired; ++i) {
+    DSERIAL(args[i]); DSERIAL(",");
+  }
+  SERIAL.println("");
+  if (animation == 'q') {
+  } else if (animation == 'g') { // ex: g255,255,255,0,0,0,3000,30,0,0,32,0,true,false,
+    gradient(CRGB(args[0].toInt(), args[1].toInt(), args[2].toInt()), CRGB(args[3].toInt(), args[4].toInt(), args[5].toInt()),
+      args[6].toInt(),
+      args[7].toInt(),
+      args[8].toInt(), args[9].toInt(),
+      args[10].toInt(), args[11].toInt(),
+      args[12] == "true" ? true : (args[12] == "false" ? false : args[12].toInt() == 0),
+      args[13] == "true" ? true : (args[13] == "false" ? false : args[13].toInt() == 0));
+  } else if (animation == 'f') {
+    flash(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt(), args[4].toInt(), args[5].toInt());
+  } else if (animation == 's') { // ex: s 10,10  5  1000,  0,  0,0,0,
+    spark(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt(), args[4].toInt(), CRGB(args[5].toInt(), args[6].toInt(), args[7].toInt()));
+  }
+}
+
 void representation(char step) {
   DSERIAL("Representation, starting at step ");
   DSERIALln(step);
 
-  const unsigned long baseBoardTime = millis(); // millis on board, when representation() gets called
-  long baseVideoTime = -1; // millis in the video, where the requested step starts (ex: step 2 => 38*1000 millisenconds)
-  long delta;
-  unsigned long currentBoardTime;
-  unsigned long dateBoardTime;
-  #define STARTAT(dateVideoTime)  if (baseVideoTime == -1) { /* In case this is the first time that STARTAT gets called */ \
-                                    baseVideoTime = dateVideoTime; \
-                                    delta = baseBoardTime - baseVideoTime; \
-                                  } \
-                                  dateBoardTime = delta + dateVideoTime; \
-                                  currentBoardTime = millis(); \
-                                  if (dateBoardTime <= currentBoardTime && dateVideoTime != 0) { /* in case the animation took too much time */ \
-                                    DSERIAL("late from "); \
-                                    DSERIAL(currentBoardTime - dateBoardTime); \
-                                    DSERIALln(" ms"); \
-                                  } else { \
-                                    WasteTime(dateBoardTime - currentBoardTime); \
-                                  }
+  #ifndef ONLY_REMOTE_SYNC
+    const unsigned long baseBoardTime = millis(); // millis on board, when representation() gets called
+    long baseVideoTime = -1; // millis in the video, where the requested step starts (ex: step 2 => 38*1000 millisenconds)
+    long delta;
+    unsigned long currentBoardTime;
+    unsigned long dateBoardTime;
+    #define END_OF_CMD()
+    #define STARTAT(dateVideoTime)  if (baseVideoTime == -1) { /* In case this is the first time that STARTAT gets called */ \
+                                      baseVideoTime = dateVideoTime; \
+                                      delta = baseBoardTime - baseVideoTime; \
+                                    } \
+                                    dateBoardTime = delta + dateVideoTime; \
+                                    currentBoardTime = millis(); \
+                                    if (dateBoardTime <= currentBoardTime && dateVideoTime != 0) { /* in case the animation took too much time */ \
+                                      DSERIAL("late from "); \
+                                      DSERIAL(currentBoardTime - dateBoardTime); \
+                                      DSERIALln(" ms"); \
+                                    } else { \
+                                      WasteTime(dateBoardTime - currentBoardTime); \
+                                    }
+
+  #else
+    #define END_OF_CMD() break;
+    #define STARTAT(dateVideoTime)
+  #endif
+
+  // #define STEP_COUNTER '0'
+  // #define NEW_STEP() STEP_COUNTER
+  // #define TESTDELAMORT case '0':
 
   switch(step) {
     case '0':
       STARTAT(0);
+      END_OF_CMD();
     case '1':
-      STARTAT(MSM(0, 38, 000));
+      // STARTAT(MSM(0, 38, 000));
       STARTAT(MSM(0, 38, 840));
       flash(255, 255, 255, 1, 560, 560); // flash(r,g,b,beats,duration,period)
+      END_OF_CMD();
     case '2':
-      STARTAT(MSM(0, 45, 000));
+      // STARTAT(MSM(0, 45, 000));
       STARTAT(MSM(0, 45, 840));
       flash(cyan, 5, 20, 40); // flash(r,g,b,beats,duration,period)
 
       // STARTAT(MSM(0, 47, 000)); // TODO: add other animations
+      END_OF_CMD();
+    case 'a':
+      STARTAT(MSM(0, 48, 160));
+      spark(2,-2,  7, 100,  820,  cyan); // until 49:080
+      END_OF_CMD();
+    case 'b':
+      STARTAT(MSM(0, 49, 080));
+      spark(29,-2,  7, 100,  820,  cyan); // until 50:000
+      END_OF_CMD();
+    case 'c':
+      STARTAT(MSM(0, 50, 680));
+      gradient(cyan, cyan, 560, 10, // origin, end, duration,stroke,
+                                   0, 0, // bx,by,
+                                   0, HEIGHT, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+                                    // until 51:240
+      END_OF_CMD();
     case '3':
       STARTAT(MSM(0, 53, 000)); gradient(purple, yellow, 560, 10, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    true, false); // lineElseDot,reverse
-      STARTAT(53 * 1000 + 560); gradient(cyan, purple, 1200, 10, // origin, end, duration,stroke,
+      END_OF_CMD();
+    case '4':
+      STARTAT(MSM(0, 53, 560)); gradient(cyan, purple, 1200, 10, // origin, end, duration,stroke,
                                    WIDTH, 0, // bx,by,
                                    0, HEIGHT, // ex,ey,
                                    false, false); // lineElseDot,reverse
-                                gradient(purple, yellow, 840, 10, // origin, end, duration,stroke,
+      END_OF_CMD();
+    case '5':
+      STARTAT(MSM(0, 54, 760)); gradient(purple, yellow, 840, 10, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
-    case '4':
-      STARTAT(MSM(1,07,000));
+      END_OF_CMD();
+    case 'd':
+      STARTAT(MSM(0, 56, 760));
+      spark(20,10,4, 400, 0, cyan);
+      spark(10,20,4, 400, 0, yellow);
+      spark(20,10,4, 400, 0, orange);
+      spark(13,6,4, 400, 0, purple);
+      spark(16,10,3, 400, 0, cyan);
+      END_OF_CMD();
+    case 'e':
+      STARTAT(MSM(1, 03, ));
+      spark(2,-2,  7, 200,  560,  yellow); // until 57:520
+      END_OF_CMD();
+    case '6':
+      // STARTAT(MSM(1,07,000));
       STARTAT(MSM(1,07,520));
       flash(cyan, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(purple, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(cyan, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
-    case '5':
-      STARTAT(MSM(1, 12, 000));
+      END_OF_CMD();
+    case '7':
+      // STARTAT(MSM(1, 12, 000));
       STARTAT(MSM(1, 12, 680)); gradient(yellow, cyan, 2000, 10, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
+      END_OF_CMD();
+    case '8':
       STARTAT(MSM(1, 17, 520)); gradient(yellow, purple, 2400, 10, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
-    case '6':
-      STARTAT(MSM(1, 21, 000));
-
+      END_OF_CMD();
+    case '9':
+      // STARTAT(MSM(1, 21, 000));
       STARTAT(MSM(1, 21, 880));
       // heart(purple, 700);
       spark(13,4,4, 400);
       commit(0, 0, 0);
-
+      END_OF_CMD();
+    case 'A':
       STARTAT(MSM(1, 22, 880));
       // heart(cyan, 700);
       spark(20,10,4, 400);
       commit(0, 0, 0);
-
+      END_OF_CMD();
+    case 'B':
       STARTAT(MSM(1, 23, 880));
       // heart(yellow, 700);
       spark(10,20,4, 400);
       commit(0, 0, 0);
-
+      END_OF_CMD();
+    case 'C':
       STARTAT(MSM(1, 24, 880));
       // heart(purple, 700);
       spark(20,10,4, 400);
       commit(0, 0, 0);
-
+      END_OF_CMD();
+    case 'D':
       STARTAT(MSM(1, 25, 800));
       // heart(cyan, 700);
       spark(13,6,4, 400);
       commit(0, 0, 0);
-
+      END_OF_CMD();
+    case 'E':
       STARTAT(MSM(1, 26, 800));
       // heart(yellow, 700);
       spark(16,10,3, 400);
       commit(0, 0, 0);
-
+      END_OF_CMD();
+    case 'F':
       STARTAT(MSM(1, 27, 800));
       // heart(purple, 700);
       spark(10,15,5, 400);
       commit(0, 0, 0);
-
+      END_OF_CMD();
+    case 'G':
       STARTAT(MSM(1, 29, 200));
       // heart(cyan, 700);
       spark(20,10,4, 400);
       commit(0, 0, 0);
-    case '7':
-      STARTAT(MSM(1,33,000));
+      END_OF_CMD();
+    case 'H':
+      // STARTAT(MSM(1,33,000));
       STARTAT(MSM(1,33,640));
       commit(255, 255, 255);
+      WasteTime(2000);
+      END_OF_CMD();
+    case 'I':
       STARTAT(MSM(1,35,600));
       commit(100, 100, 255);
+      WasteTime(5000);
+      END_OF_CMD();
+    case 'J':
       STARTAT(MSM(1,40,000));
       commit(0, 0, 0);
+      END_OF_CMD();
   }
   DSERIALln("Representation: Done");
 }
 
 void spark(const signed char bx, const signed char by, short radius, const unsigned long duration){
+  spark(bx, by, radius, duration, 0, CRGB::Black);
+}
+void spark(const signed char bx, const signed char by, short radius, const unsigned long duration, const unsigned long persitenceDuration, const CRGB &color){
   const byte transition = 1000 / 30; // 30 fps
   const unsigned long startingTime = millis();
   const unsigned short frames = duration / transition;
@@ -305,10 +380,14 @@ void spark(const signed char bx, const signed char by, short radius, const unsig
             if (LEDs[ledID].r != 0 && LEDs[ledID].g != 0 && LEDs[ledID].b != 0) { // if the color of the LED is not black
               // do nothing, the color has already been computed
             } else {
-                if (ledID%4 == 0){LEDs[ledID] = cyan;}
-                else if (ledID%4 == 1){LEDs[ledID] = yellow;}
-                else if (ledID%4 == 2){LEDs[ledID] = purple;}
-                else if (ledID%4 == 3){LEDs[ledID] = orange;}
+                if (color.r == 0 && color.g == 0 && color.b == 0) {
+                  if (ledID%4 == 0){LEDs[ledID] = cyan;}
+                  else if (ledID%4 == 1){LEDs[ledID] = yellow;}
+                  else if (ledID%4 == 2){LEDs[ledID] = purple;}
+                  else if (ledID%4 == 3){LEDs[ledID] = orange;}
+                } else {
+                  LEDs[ledID] = color;
+                }
             }
           }
         }
@@ -323,7 +402,7 @@ void spark(const signed char bx, const signed char by, short radius, const unsig
   // display the frame
   FastLED.show();
   if (FromLoop == 0){ return;}
-  WasteTime(duration - (millis() - startingTime));
+  WasteTime(duration - (millis() - startingTime) + persitenceDuration);
 }
 
 void heart(const byte r, const byte g, const byte b, const unsigned int duration) {
@@ -703,7 +782,7 @@ void commit(unsigned int r, unsigned int v, unsigned int b){
   }
 
   FastLED.show();
-  delay(10);
+  // delay(10);
 }
 
 void WasteTime(long interval){
