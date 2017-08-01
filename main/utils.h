@@ -50,6 +50,7 @@ extern byte current;
                     // printf("Vous etes majeur %s\n", nom);
 
 #define B(minInclude, x, maxExclude) (minInclude <= x && x < maxExclude)
+#define MSM(minutes, seconds, milliseconds) ((long)((60 * minutes + seconds) * 1000 + milliseconds))
 // #define WAIT(duration)  if (duration > 0) \
 //                             WasteTime(duration); \
 //                         else \

@@ -23,7 +23,7 @@ void setup() {
 
   SERIAL.begin(9600);
 
-  current = '1';
+  current = '6';
 }
 
 void loop() {
@@ -73,6 +73,9 @@ void loop() {
           // SERIAL.println("--gradient");
           animation = c;
           argRequired = 14;
+        } else if(c == 'f') { // flash function
+          animation = c;
+          argRequired = 6;
         } else if (c == ' ' || c == ',' || c == '\n') {
           // SERIAL.println("--a space");
           if (animation != '?') {
@@ -107,6 +110,8 @@ void loop() {
         args[10].toInt(), args[11].toInt(),
         args[12] == "true" ? true : (args[12] == "false" ? false : args[12].toInt() == 0),
         args[13] == "true" ? true : (args[13] == "false" ? false : args[13].toInt() == 0));
+    } else if (animation == 'f') {
+      flash(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt(), args[4].toInt(), args[5].toInt());
     }
   }
   else if (B('0', current, '9'+1))representation(current);
@@ -133,9 +138,14 @@ void representation(char step) {
   // const CRGB purple = CRGB(222, 0, 228); // inspired from original value: CRGB(222, 69, 228)
   // const CRGB yellow = CRGB(232, 246, 0); // inspired from original value: CRGB(232, 246, 93)
   // const CRGB cyan  = CRGB(0, 250, 243);  // inspired from original value: CRGB(105, 250, 243)
-  const CRGB purple = CRGB(222, 69, 228); // the original value
-  const CRGB yellow = CRGB(232, 246, 93); // the original value
-  const CRGB cyan  = CRGB(105, 250, 243);  // the original value
+
+  const CRGB purple = CRGB(128, 0, 115); // inspired from original value: CRGB(222, 69, 228)
+  const CRGB yellow = CRGB(115, 123, 0); // inspired from original value: CRGB(232, 246, 93)
+  const CRGB cyan  = CRGB(0, 128, 120);  // inspired from original value: CRGB(105, 250, 243)
+
+  // const CRGB purple = CRGB(222, 69, 228); // the original value
+  // const CRGB yellow = CRGB(232, 246, 93); // the original value
+  // const CRGB cyan  = CRGB(105, 250, 243);  // the original value
 
   SERIAL.print("Representation, starting at step ");
   SERIAL.println(step);
@@ -156,29 +166,77 @@ void representation(char step) {
                                     DSERIAL(currentBoardTime - dateBoardTime); \
                                     DSERIALln(" ms"); \
                                   } else { \
-                                    DSERIAL("Waiting "); \
-                                    DSERIAL(dateBoardTime - currentBoardTime); \
-                                    DSERIALln(" ms"); \
                                     WasteTime(dateBoardTime - currentBoardTime); \
                                   }
 
   switch(step) {
     case '0': STARTAT(0);
     case '1': STARTAT(38 * 1000 + 840); flash(255, 255, 255, 1, 560, 560); // flash(r,g,b,beats,duration,period)
-    case '2': STARTAT(45 * 1000 + 840); flash(cyan.r, cyan.g, cyan.b, 5, 20, 40); // flash(r,g,b,beats,duration,period)
+    case '2': STARTAT(45 * 1000 + 840); flash(cyan, 5, 20, 40); // flash(r,g,b,beats,duration,period)
     case '3':
       STARTAT(52 * 1000); gradient(purple, yellow, 560, 10, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
-                                   0, WIDTH, // ex,ey,
+                                   WIDTH, 0, // ex,ey,
                                    true, false); // lineElseDot,reverse
       STARTAT(53 * 1000 + 560); gradient(cyan, purple, 1200, 10, // origin, end, duration,stroke,
                                    WIDTH, 0, // bx,by,
-                                   8, HEIGHT, // ex,ey,
+                                   0, HEIGHT, // ex,ey,
                                    false, false); // lineElseDot,reverse
                                  gradient(purple, yellow, 840, 10, // origin, end, duration,stroke,
-                                   WIDTH, 0, // bx,by,
-                                   8, HEIGHT, // ex,ey,
+                                   0, HEIGHT, // bx,by,
+                                   WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
+    case '4':
+      STARTAT(MSM(1,07,520));
+      // STARTAT((1 * 60 + 07) * 1000 + 520);
+      flash(cyan, 1, 50, 300);// flash(r,g,b,beats,duration,period)
+      flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
+      flash(purple, 1, 50, 300);// flash(r,g,b,beats,duration,period)
+      flash(cyan, 1, 50, 300);// flash(r,g,b,beats,duration,period)
+      flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
+    case '5':
+      STARTAT(MSM(1, 12, 680)); gradient(yellow, cyan, 2000, 10, // origin, end, duration,stroke,
+                                   0, 0, // bx,by,
+                                   WIDTH, 0, // ex,ey,
+                                   false, false); // lineElseDot,reverse
+      STARTAT(MSM(1, 17, 520)); gradient(yellow, purple, 2400, 10, // origin, end, duration,stroke,
+                                   0, 0, // bx,by,
+                                   WIDTH, 0, // ex,ey,
+                                   false, false); // lineElseDot,reverse
+    case '6':
+      STARTAT(MSM(1, 21, 880));
+      heart(purple, 700);
+      commit(0, 0, 0);
+      STARTAT(MSM(1, 22, 880));
+      heart(cyan, 700);
+      commit(0, 0, 0);
+      STARTAT(MSM(1, 23, 880));
+      heart(yellow, 700);
+      commit(0, 0, 0);
+      STARTAT(MSM(1, 24, 880));
+      heart(purple, 700);
+      commit(0, 0, 0);
+      STARTAT(MSM(1, 25, 800));
+      heart(cyan, 700);
+      commit(0, 0, 0);
+      STARTAT(MSM(1, 26, 800));
+      heart(yellow, 700);
+      commit(0, 0, 0);
+      STARTAT(MSM(1, 27, 800));
+      heart(purple, 700);
+      commit(0, 0, 0);
+      STARTAT(MSM(1, 29, 200));
+      heart(cyan, 700);
+      commit(0, 0, 0);
+    case '7':
+      STARTAT(MSM(1,33,640));
+      commit(255, 255, 255);
+      STARTAT(MSM(1,35,600));
+      commit(100, 100, 255);
+      STARTAT(MSM(1,40,000));
+      commit(0, 0, 0);
+
+
 
     //   STARTAT(38); coolAnimation();
     //   STARTAT(39); coolAnimation2();
@@ -186,6 +244,125 @@ void representation(char step) {
     //   STARTAT(50); coolAnimation3();
   }
   SERIAL.println("Representation: Done");
+}
+
+void heart(const byte r, const byte g, const byte b, const unsigned int duration) {
+  heart(CRGB(r, g, b), duration);
+}
+void heart(const CRGB color, const unsigned int duration) {
+  unsigned long startingTime = millis();
+  FastLED.clear(true);
+
+  short ledID;
+  // // naive array method
+  // const byte bitmap[] = {0,0,0,1,1,0,0,0,0,1,1,0,0,0,
+  //       0,0,1,1,0,1,0,0,1,0,1,1,0,0,
+  //       0,1,1,0,0,0,1,1,0,0,0,1,1,0,
+  //       1,1,0,0,0,0,1,1,0,0,0,0,1,1,
+  //       1,0,0,0,0,0,1,1,0,0,0,0,0,1,
+  //       0,1,0,0,0,0,0,0,0,0,0,0,1,0,
+  //       0,1,1,0,0,0,0,0,0,0,0,1,1,0,
+  //       0,0,0,1,1,0,0,0,0,1,1,0,0,0,
+  //       0,0,0,0,1,1,0,0,1,1,0,0,0,0,
+  //       0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+  //       0,0,0,0,0,0,1,1,0,0,0,0,0,0}; // 14 * 11 pixels
+
+  // for (int i = 0; i < 154; ++i) {
+  //   if (bitmap[i] == 1) {
+  //     byte x = 9 + i % 14;
+  //     byte y = 3 + i / 14;
+  //     if ((ledID = id(x, y)) != -1) {
+  //       ALL[ledID] = color;
+  //     }
+  //   }
+  // }
+  // bits array method
+  const byte bitmap[] =  {
+                          0b00011000,
+                          0b01100000,
+                          0b11010010,
+                          0b11000110,
+                          0b00110001,
+                          0b10110000,
+                          0b11000011,
+                          0b10000011,
+                          0b00000101,
+                          0b00000000,
+                          0b00100110,
+                          0b00000001,
+                          0b10000110,
+                          0b00011000,
+                          0b00001100,
+                          0b11000000,
+                          0b00001100,
+                          0b00000000,
+                          0b00110000,
+                          // 0b00}; // 14 * 11 pixels
+                          0b00000000}; // 14 * 11 pixels
+  const byte transition = 1000 / 30; // 30 fps
+  const unsigned short frames = duration / transition;
+  unsigned long startingLoopAt;
+  for (unsigned short t = 0; t < frames; ++t) { // for each frame of the transition
+    startingLoopAt = millis();
+    const float percentageOfProgressionOfAnimation = (float)(t+1) / (float)(frames);
+    for (byte i = 0; i < 154; ++i) {
+      if ((bitmap[i/8] & (1<<((7-i%8))) ) != 0) {
+        byte x = 9 + i % 14;
+        byte y = 3 + i / 14;
+        if ((ledID = id(x, y)) != -1) {
+          ALL[ledID].r = color.r * ((9 - pow(percentageOfProgressionOfAnimation*3, 2)) / 9);
+          ALL[ledID].g = color.g * ((9 - pow(percentageOfProgressionOfAnimation*3, 2)) / 9);
+          ALL[ledID].b = color.b * ((9 - pow(percentageOfProgressionOfAnimation*3, 2)) / 9);
+        }
+      }
+    }
+
+    // display the frame
+    FastLED.show();
+    if (FromLoop == 0){ return;}
+    WasteTime(transition - (millis() - startingLoopAt));
+  }
+  // float ledValue;
+  // // http://onemanadreaming.blogspot.fr/2014/08/mathematical-equation-of-love-heart.html
+  // // (y^2 + x^2 - 1)^3 - (x^2)*(y^3) = 0
+  // // for (short t = 0; t < 200; ++t) {
+  // //   byte x = 16 * pow(sin(t), 3);
+  // //   byte y = 13 * cos(t) - 5 * cos(2*t) - 2*cos(2*t) - cos(4*t);
+  // //   if ((ledID = id(x, y)) != -1) {
+  // //     ALL[ledID] = color;
+  // //   }
+  // // }
+  // // for (float x = 0.f; x < WIDTH; x+=1.f) {
+  //   // for (float y = 0.f; y < HEIGHT; y+=1.f) {
+  // for (byte y = 0; y < HEIGHT; ++y) {
+  //   for (byte x = 0; x < WIDTH; ++x) {
+
+  //       float fx = (((float)x - (WIDTH/2.f)) * 2.f) / (float)(WIDTH);
+  //       float fy = (((float)(HEIGHT - y) - (HEIGHT/2.f)) * 2.f) / (float)(HEIGHT);
+  //       ledValue = pow(fy*fy + fx*fx - 1, 3) - fx*fx*fy*fy*fy;
+  //     if ((ledID = id(x, y)) != -1) {
+  //       if (-0.08f < ledValue && ledValue < 0.08f) {
+  //         ALL[ledID] = CRGB(255, 0, 0);
+  //       } else if (B(-0.3f, ledValue, 0.3f)) {
+  //         ALL[ledID] = CRGB(0, 255, 0);
+  //       } else if (B(-0.6f, ledValue, 0.6f)) {
+  //         ALL[ledID] = CRGB(0, 0, 255);
+  //       }
+
+  //     }
+  //     if (ledValue >= 0.f) {
+  //       DSERIAL("+");
+  //     }
+  //     DSERIAL(ledValue);
+  //     DSERIAL(" ");
+  //   }
+  //   DSERIALln("");
+  // }
+
+  // display the frame
+  FastLED.show();
+  if (FromLoop == 0){ return;}
+  WasteTime(duration - (millis() - startingTime));
 }
 
   // unsigned long startingTime;
@@ -279,24 +456,28 @@ void representation(char step) {
 // The total duration of the effect will be "duration" milliseconds.
 // (bx,by) gives the starting position.
 // (ex,ey) gives the ending position.
+// TODO: find a way, that the animation goes smoothly until the end
 void gradient(const CRGB origin, const CRGB end, const unsigned short duration, const unsigned char stroke, const signed char bx, const signed char by, const signed char ex, const signed char ey, const bool lineElseDot, const bool reverse) {
   const byte transition = 1000 / 30; // 30 fps
   const unsigned short frames = duration / transition;
   const signed char dx = ex - bx, dy = ey - by; // (dx, dy) : overall movement
   const float length = sqrt(dx*dx + dy*dy);
   const float strokeAsPercentage = (float)(stroke) / length;
+  // const signed char sdx = dx * strokeAsPercentage, sdy = dy * strokeAsPercentage; // (sdx, sdy) : stroke vector
   const signed short dr = end.r - origin.r, dg = end.g - origin.g, db = end.b - origin.b; // overall RGB color change (dr, dg, db)
   unsigned long startingLoopAt;
+  FastLED.clear(true);
   for (unsigned short t = 0; t < frames; ++t) { // for each frame of the transition
     startingLoopAt = millis();
     const float percentageOfProgressionOfAnimation = (float)(t+1) / (float)(frames);
     // (cx,cy) : current position of the front of the wave
     signed char cx = bx + (signed char)(((float)dx * percentageOfProgressionOfAnimation));
     signed char cy = by + (signed char)(((float)dy * percentageOfProgressionOfAnimation));
+    // signed char cx = bx + (signed char)(((float)(dx + sdx) * percentageOfProgressionOfAnimation));
+    // signed char cy = by + (signed char)(((float)(dy + sdy) * percentageOfProgressionOfAnimation));
 
     // compute the color of each LED
     short ledID;
-    // FastLED.clear(true);
     for (signed char x = 0; x < WIDTH; ++x) { // TODO: work only in the square of end and origin
       for (signed char y = 0; y < HEIGHT; ++y) {
         if ((ledID = id(x, y)) != -1) { // do not bother doing any computation for pixels that won't be displayed
@@ -319,33 +500,37 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
 
           // determine if the color should be displayed, based on the frame number
           if (B(percentageOfProgressionOfAnimation - strokeAsPercentage, distance, (reverse ? percentageOfProgressionOfAnimation+1 : percentageOfProgressionOfAnimation))) {
-            // float colorCoefficient = distance;
-            float colorCoefficient;
-            #define D1 0.35f
-            #define V1 0.20f
+            if (ALL[ledID].r != 0 && ALL[ledID].g != 0 && ALL[ledID].b != 0) { // if the color of the LED is not black
+              // do nothing, the color has already been computed
+            } else {
+              // float colorCoefficient = distance;
+              float colorCoefficient;
+              #define D1 0.40f
+              #define V1 0.20f
 
-            #define D2 0.65f
-            #define V2 0.80f
-            if (distance < D1) {
-              colorCoefficient = distance * (V1 / D1);
-            } else if (B(D1, distance, D2)) {
-              colorCoefficient = (distance - D1) * ((V2-V1) / (D2-D1)) + V1;
-              // if (colorCoefficient < 0 + V1;
-            } else if (D2 <= distance) {
-              colorCoefficient = (distance - D2) * ((1.f-V2) / (1.f-D1)) + V2;
-            }
-            const CRGB color = CRGB(
-                origin.r + (byte)(dr * colorCoefficient),
-                origin.g + (byte)(dg * colorCoefficient),
-                origin.b + (byte)(db * colorCoefficient));
-            if (lineElseDot) { // the wave looks like a moving line
-              ALL[ledID] = color;
-            } else { // the wave looks like a moving dot
-              const float vectorLineToPointX = (bx + dx * percentageOfProgressionOfAnimation) - x;
-              const float vectorLineToPointY = (by + dy * percentageOfProgressionOfAnimation) - y;
-              float distanceToLine = sqrt(vectorLineToPointX*vectorLineToPointX + vectorLineToPointY*vectorLineToPointY);
-              if (distanceToLine <= stroke/2) {
+              #define D2 0.60f
+              #define V2 0.80f
+              if (distance < D1) {
+                colorCoefficient = distance * (V1 / D1);
+              } else if (B(D1, distance, D2)) {
+                colorCoefficient = (distance - D1) * ((V2-V1) / (D2-D1)) + V1;
+                // if (colorCoefficient < 0 + V1;
+              } else if (D2 <= distance) {
+                colorCoefficient = (distance - D2) * ((1.f-V2) / (1.f-D1)) + V2;
+              }
+              const CRGB color = CRGB(
+                  origin.r + (byte)(dr * colorCoefficient),
+                  origin.g + (byte)(dg * colorCoefficient),
+                  origin.b + (byte)(db * colorCoefficient));
+              if (lineElseDot) { // the wave looks like a moving line
                 ALL[ledID] = color;
+              } else { // the wave looks like a moving dot
+                const float vectorLineToPointX = (bx + dx * percentageOfProgressionOfAnimation) - x;
+                const float vectorLineToPointY = (by + dy * percentageOfProgressionOfAnimation) - y;
+                float distanceToLine = sqrt(vectorLineToPointX*vectorLineToPointX + vectorLineToPointY*vectorLineToPointY);
+                if (distanceToLine <= stroke/2) {
+                  ALL[ledID] = color;
+                }
               }
             }
           }
@@ -405,6 +590,9 @@ void expandingCircle(const byte r, const byte g, const byte b, const byte x, con
   }
 }
 
+void flash(const CRGB color, const byte beats, const short duration, const short period) {
+  flash(color.r, color.g, color.b, beats, duration, period);
+}
 void flash(const byte r, const byte g, const byte b, const byte beats, const short duration, const short period) {
   FastLED.clear(true);
   unsigned long startingLoopAt;
@@ -568,6 +756,9 @@ void setPixel(int Pixel, byte red, byte green, byte blue) {
 // ############################################################ SECOND ORDER FONCTIONS ##################################################################################
 
 // set all pixels to the given color
+void commit(const CRGB color) {
+  commit(color.r, color.g, color.b);
+}
 void commit(unsigned int r, unsigned int v, unsigned int b){
 
   for(int i = 0; i < NUM_LEDS_ALL; i++) {
