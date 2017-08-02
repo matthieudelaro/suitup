@@ -9,7 +9,6 @@
 #define NUM_LEDS_LEG_L 60
 #define NUM_LEDS_LEG_R 60
 #define NUM_LEDS_SKIRT 200
-// #define NUM_LEDS_ALL (NUM_LEDS_ARM_L+NUM_LEDS_ARM_R+NUM_LEDS_CHEST+NUM_LEDS_SKIRT)
 
 extern byte incomingByte; // for incoming Serial1 data
 extern unsigned long previousMillis;
@@ -22,7 +21,7 @@ extern const struct CRGB purple, yellow, cyan;
 #define WIDTH_CHEST 16
 #define WIDTH (LENGTH_ARM + WIDTH_CHEST + LENGTH_ARM)
 
-#define SUIT_FOR_MAN 1
+// #define SUIT_FOR_MAN 1
 #ifdef SUIT_FOR_MAN
     #define NUM_LEDS_ALL (NUM_LEDS_ARM_L+NUM_LEDS_ARM_R+NUM_LEDS_CHEST+NUM_LEDS_LEG_L+NUM_LEDS_LEG_R)
     #define HEIGHT_CHEST 14

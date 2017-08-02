@@ -2,7 +2,7 @@
 
 #define SERIAL_USB 1 // See SERIAL in utils.h
 // #define SERIAL_RADIO 1 // See SERIAL in utils.h
-#define DEBUG 1 // See DSERIAL and DSERIALln in utils.h
+// #define DEBUG 1 // See DSERIAL and DSERIALln in utils.h
 #define ONLY_REMOTE_SYNC 1
 
 #include "utils.h"
@@ -41,7 +41,7 @@ void setup() {
   #endif
 
   SERIAL.begin(9600);
-  current = '!';
+  current = 0;
 }
 
 void loop() {
@@ -58,7 +58,14 @@ void loop() {
     FastLED.clear(true);
   }
 
-  if (current == '!') {
+  if (current == 0) { // board just started up
+    // give a feedback
+    commit(0,0,255);
+    WasteTime(500);
+    commit(0,0,0);
+    heart(purple, 500);
+    current = '!'; // tell it to wait
+  } else if (current == '!') {
     // do nothing
   }
   // else if (current == 97){defile(80);}
@@ -219,7 +226,7 @@ void representation(char step) {
       spark(2,-2,  7, 100,  820,  cyan); // until 49:080
       END_OF_CMD();
     case 'b':
-      STARTAT(MSM(0, 49, 080));
+      STARTAT(MSM(0, 49,  80));
       spark(29,-2,  7, 100,  820,  cyan); // until 50:000
       END_OF_CMD();
     case 'c':
@@ -256,10 +263,10 @@ void representation(char step) {
       spark(13,6,4, 400, 0, purple);
       spark(16,10,3, 400, 0, cyan);
       END_OF_CMD();
-    case 'e':
-      STARTAT(MSM(1, 03, ));
-      spark(2,-2,  7, 200,  560,  yellow); // until 57:520
-      END_OF_CMD();
+    // case 'e':
+    //   STARTAT(MSM(0, 59, 680));
+    //   spark(2,-2,  7, 200,  560,  yellow); // until 57:520
+    //   END_OF_CMD();
     case '6':
       // STARTAT(MSM(1,07,000));
       STARTAT(MSM(1,07,520));

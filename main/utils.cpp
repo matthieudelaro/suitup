@@ -68,14 +68,9 @@ short id(signed char x, signed char y) {
             return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_LEG - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_LEG_R);
         }
     #else // ifdef SUIT_FOR_GIRL
-        else if (B(HEIGHT_CHEST, y, HEIGHT)) {
-            return (y - HEIGHT_CHEST) + HEIGHT_SKIRT * (WIDTH - 1 - x * SKIRT_BLANK)  +(NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST); // TODO: check this
+        else if (B(SKIRT_BLANK, x, WIDTH) && B(HEIGHT_CHEST, y, HEIGHT) && (x % SKIRT_BLANK == 0)) {
+            return (y - HEIGHT_CHEST) + HEIGHT_SKIRT * (WIDTH/SKIRT_BLANK - x/SKIRT_BLANK)  +(NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST); // TODO: check this
             // return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_LEG - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_LEG_R);
-        }
-        else if (B(LENGTH_ARM + WIDTH_CHEST - WIDTH_LEG, x, LENGTH_ARM + WIDTH_CHEST) && B(HEIGHT_CHEST, y, HEIGHT)) { // right leg
-            return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_CHEST - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST);
-        } else if (B(LENGTH_ARM, x, LENGTH_ARM + WIDTH_LEG) && B(HEIGHT_CHEST, y, HEIGHT)) { // left leg
-            return (y - HEIGHT_CHEST) + HEIGHT_LEG * (LENGTH_ARM + WIDTH_LEG - 1 - x) + (NUM_LEDS_ARM_R+NUM_LEDS_ARM_L+NUM_LEDS_CHEST+NUM_LEDS_LEG_R);
         }
     #endif
     else {

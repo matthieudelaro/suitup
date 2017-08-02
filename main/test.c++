@@ -39,7 +39,8 @@ class FooTest : public ::testing::Test {
   // Objects declared here can be used by all tests in the test case for Foo.
 };
 
-TEST_F(FooTest, idFunction) {
+#ifdef SUIT_FOR_MAN
+TEST_F(FooTest, idFunctionMan) {
     // Test left arm
     for (int i = 0; i < 8; i++) EXPECT_EQ(id(i, 0), (NUM_LEDS_ARM_R + NUM_LEDS_ARM_L + NUM_LEDS_CHEST) - 1 - i);
     for (int i = 0; i < 8; i++) EXPECT_EQ(id(i, 1), (NUM_LEDS_ARM_R + NUM_LEDS_ARM_L + NUM_LEDS_CHEST) - 1 - i - LENGTH_ARM);
@@ -85,6 +86,56 @@ TEST_F(FooTest, idFunction) {
 
     cout << "WxH:" << WIDTH << "x" << HEIGHT << endl;
 }
+#else
+TEST_F(FooTest, idFunctionGirl) {
+    // Test left arm
+    for (int i = 0; i < 8; i++) EXPECT_EQ(id(i, 0), (NUM_LEDS_ARM_R + NUM_LEDS_ARM_L + NUM_LEDS_CHEST) - 1 - i);
+    for (int i = 0; i < 8; i++) EXPECT_EQ(id(i, 1), (NUM_LEDS_ARM_R + NUM_LEDS_ARM_L + NUM_LEDS_CHEST) - 1 - i - LENGTH_ARM);
+
+    // test right arm
+    EXPECT_EQ(id(WIDTH-1, 0), 7);
+    EXPECT_EQ(LENGTH_ARM + WIDTH_CHEST, 24);
+    EXPECT_EQ(id(24, 0), 0);
+    EXPECT_EQ(WIDTH, 32);
+    EXPECT_EQ(id(32-1, 2), 23);
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 3; y++) {
+            EXPECT_EQ(id(x + LENGTH_ARM + WIDTH_CHEST, y), x + y*8);
+        }
+    }
+
+    // test chest
+    EXPECT_EQ(NUM_LEDS_ARM_R - 1, 23);
+    EXPECT_EQ(id(23, 6), -1);
+    EXPECT_EQ(id(23, 7), 24);
+    EXPECT_EQ(id(8, 13), NUM_LEDS_CHEST + NUM_LEDS_ARM_R - 1);
+
+    // for (int x = SKIRT_BLANK; x < WIDTH; ++x) {
+    //     if (x % SKIRT_BLANK == 0) {
+    //         cout << x << " => " << x/SKIRT_BLANK << " => " << (WIDTH/SKIRT_BLANK - 1 - x/SKIRT_BLANK) << " => " <<
+    //             HEIGHT_SKIRT * (WIDTH/SKIRT_BLANK - x/SKIRT_BLANK)
+    //              << endl;
+    //     }
+    // }
+
+    // test void
+    EXPECT_EQ(id(0, 3), -1); // under arm
+    // EXPECT_EQ(id(16, 15), -1); // under chest, between legs
+
+    // sanity test: no seg fault
+    for (byte x = 0; x < WIDTH; ++x) {
+      for (byte y = 0; y < HEIGHT; ++y) {
+        short led = id(x, y);
+        if (led != -1) {
+          EXPECT_TRUE(led >= 0);
+          EXPECT_TRUE(led < NUM_LEDS_ALL);
+        }
+      }
+    }
+
+    cout << "WxH:" << WIDTH << "x" << HEIGHT << endl;
+}
+#endif
 
 struct CRGB {
   byte r, g, b;
