@@ -1,10 +1,12 @@
-#include "FastLED.h"
-
-#define SERIAL_USB 1 // See SERIAL in utils.h
-// #define SERIAL_RADIO 1 // See SERIAL in utils.h
-// #define DEBUG 1 // See DSERIAL and DSERIALln in utils.h
-#define ONLY_REMOTE_SYNC 1
-
+#ifndef _M_X86
+  #ifndef __i386__
+    #ifndef __amd64__
+      #include "FastLED.h" // import this library only when compiling for Arduino
+      // (not in test phase for on OSX for example, when generating the output of
+      // preprocessor: g++ -nostdinc -x c -E main/main.ino > main/main.prep.c++
+    #endif
+  #endif
+#endif
 #include "utils.h"
 
 // const CRGB purple = CRGB(222, 0, 228); // inspired from original value: CRGB(222, 69, 228)
@@ -47,19 +49,12 @@ void setup() {
 void loop() {
   FastLED.clear(true);
   FromLoop = 1;
-  if (SERIAL.available() > 0) {
-                // read the incoming byte:
-    incomingByte = SERIAL.read();
-
-                // say what you got:
-    DSERIAL("I received (DEC): ");
-    DSERIALln(incomingByte);
-    current = incomingByte;
-    FastLED.clear(true);
-  }
+  listen();
 
   if (current == 0) { // board just started up
     // give a feedback
+    gradient(CRGB::Green, CRGB::Red,1000,30,0,0,32,0,true,false);
+    WasteTime(500);
     commit(0,0,255);
     WasteTime(500);
     commit(0,0,0);
@@ -87,20 +82,37 @@ void loop() {
 
 
 // ############################################################################# FONCTIONS #############################################################################
-// void circleRainbow() {
-//   short ledID;
-//   for (byte x = 0; x < WIDTH; ++x) {
-//     for (byte y = 0; y < HEIGHT; ++y) {
-//       if ((ledID = id(x, y)) != -1) {
-//         float distanceToCenter = sqrt(pow(x-WIDTH/2, 2) + pow(y-HEIGHT/2, 2));
-//         LEDs[ledID] = CRGB(
-//           () * distanceToCenter,
-//           () * distanceToCenter,
-//           () * distanceToCenter);
-//       }
-//     }
-//   }
-// }
+// Listen to messages such as "M1", "F2", or "B3"
+// The fist character defines the receptors:
+// M => Male
+// F => Female
+// A => ALL
+// The second character define the animation to run.
+// Return true if received an order, false otherwise
+bool listen() {
+  if (SERIAL.available() >= 2) {
+    // read the incoming byte:
+    incomingByte = SERIAL.read();
+    incomingByte2 = SERIAL.read();
+    // say what you got:
+    DSERIAL("I received (DEC): ");
+    DSERIALln(incomingByte);
+    DSERIALln(incomingByte2);
+
+    #ifdef SUIT_FOR_MAN
+      if (incomingByte == 'M' || incomingByte == 'A') {
+        current = incomingByte2;
+        return true;
+      }
+    #else
+      if (incomingByte == 'F' || incomingByte == 'A') {
+        current = incomingByte2;
+        return true;
+      }
+    #endif
+  }
+  return false;
+}
 
 void RPC() {
   DSERIALln("Welcome in Remote Procedure Call");
@@ -201,158 +213,260 @@ void representation(char step) {
     #define STARTAT(dateVideoTime)
   #endif
 
-  // #define STEP_COUNTER '0'
-  // #define NEW_STEP() STEP_COUNTER
-  // #define TESTDELAMORT case '0':
+  #define ALL(cmd) cmd
+  #ifdef ONLY_REMOTE_SYNC // apply the macro, which might be useful
+    #ifdef SUIT_FOR_MAN
+      #define ONLY_MAN(cmd) cmd
+      #define ONLY_GIRL(cmd) cmd
+      #define MAN_SYNC_GIRL(cmdMan, cmdGirl) cmdMan
+    #else
+      #define ONLY_MAN(cmd) cmd
+      #define ONLY_GIRL(cmd) cmd
+      #define MAN_SYNC_GIRL(cmdMan, cmdGirl) cmdGirl
+    #endif
+  #else // write only the minimum
+    #ifdef SUIT_FOR_MAN
+      #define ONLY_MAN(cmd) cmd
+      #define ONLY_GIRL(cmd)
+      #define MAN_SYNC_GIRL(cmdMan, cmdGirl) cmdMan
+    #else
+      #define ONLY_MAN(cmd)
+      #define ONLY_GIRL(cmd) cmd
+      #define MAN_SYNC_GIRL(cmdMan, cmdGirl) cmdGirl
+    #endif
+  #endif
+
+  #define ALLawesome(character, startDate, cmd)
+
 
   switch(step) {
-    case '0':
-      STARTAT(0);
+    ALL(case '0': STARTAT(MSM(0,0,000));
       END_OF_CMD();
-    case '1':
-      // STARTAT(MSM(0, 38, 000));
-      STARTAT(MSM(0, 38, 840));
+    );
+    ONLY_MAN(case '1': STARTAT(MSM(0, 38, 840));
       flash(255, 255, 255, 1, 560, 560); // flash(r,g,b,beats,duration,period)
       END_OF_CMD();
-    case '2':
-      // STARTAT(MSM(0, 45, 000));
-      STARTAT(MSM(0, 45, 840));
+    );
+    ONLY_MAN(case '2': STARTAT(MSM(0, 45, 840));
       flash(cyan, 5, 20, 40); // flash(r,g,b,beats,duration,period)
 
       // STARTAT(MSM(0, 47, 000)); // TODO: add other animations
       END_OF_CMD();
-    case 'a':
-      STARTAT(MSM(0, 48, 160));
+    );
+    ONLY_MAN(case '3': STARTAT(MSM(0, 48, 160));
       spark(2,-2,  7, 100,  820,  cyan); // until 49:080
       END_OF_CMD();
-    case 'b':
-      STARTAT(MSM(0, 49,  80));
+    );
+    ONLY_MAN(case '4': STARTAT(MSM(0, 49,  80));
       spark(29,-2,  7, 100,  820,  cyan); // until 50:000
       END_OF_CMD();
-    case 'c':
-      STARTAT(MSM(0, 50, 680));
+    );
+    ONLY_MAN(case '5': STARTAT(MSM(0, 50, 680));
       gradient(cyan, cyan, 560, 10, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    0, HEIGHT, // ex,ey,
                                    true, false); // lineElseDot,reverse
                                     // until 51:240
       END_OF_CMD();
-    case '3':
-      STARTAT(MSM(0, 53, 000)); gradient(purple, yellow, 560, 10, // origin, end, duration,stroke,
+    );
+    ONLY_MAN(case '6': STARTAT(MSM(0, 53, 000));
+      gradient(purple, yellow, 560, 10, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    true, false); // lineElseDot,reverse
       END_OF_CMD();
-    case '4':
-      STARTAT(MSM(0, 53, 560)); gradient(cyan, purple, 1200, 10, // origin, end, duration,stroke,
+    );
+    ONLY_MAN(case '7': STARTAT(MSM(0, 53, 560));
+      gradient(cyan, purple, 1200, 10, // origin, end, duration,stroke,
                                    WIDTH, 0, // bx,by,
                                    0, HEIGHT, // ex,ey,
                                    false, false); // lineElseDot,reverse
       END_OF_CMD();
-    case '5':
-      STARTAT(MSM(0, 54, 760)); gradient(purple, yellow, 840, 10, // origin, end, duration,stroke,
+    );
+    ONLY_MAN(case '8': STARTAT(MSM(0, 54, 760));
+      gradient(purple, yellow, 840, 10, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
       END_OF_CMD();
-    case 'd':
-      STARTAT(MSM(0, 56, 760));
-      spark(20,10,4, 400, 0, cyan);
-      spark(10,20,4, 400, 0, yellow);
-      spark(20,10,4, 400, 0, orange);
-      spark(13,6,4, 400, 0, purple);
-      spark(16,10,3, 400, 0, cyan);
+    );
+    ONLY_MAN(case '9': STARTAT(MSM(0, 56, 760));
+      spark(20,10,4, 200, 200, cyan);
+      spark(10,20,4, 200, 200, yellow);
+      spark(20,10,4, 200, 200, orange);
+      spark(13,6,4, 200, 200, purple);
+      spark(16,10,3, 200, 200, cyan); // until < 59:000
       END_OF_CMD();
-    // case 'e':
-    //   STARTAT(MSM(0, 59, 680));
-    //   spark(2,-2,  7, 200,  560,  yellow); // until 57:520
-    //   END_OF_CMD();
-    case '6':
-      // STARTAT(MSM(1,07,000));
-      STARTAT(MSM(1,07,520));
+    );
+    ONLY_MAN(case 'a':
+      STARTAT(MSM(0, 59, 000));
+      spark(2,-2,  7, 200,  560,  purple);
+      spark(20,10,4, 200, 200, cyan);
+      spark(2,-2,  7, 200,  560,  yellow);
+      spark(10,20,4, 200, 200, orange);
+      spark(2,-2,  7, 200,  560,  cyan);
+      spark(20,10,4, 200, 200, orange);
+      spark(2,-2,  7, 200,  560,  yellow);
+      spark(13,6,4, 200, 200, purple);
+      spark(2,-2,  7, 200,  560,  purple);
+      spark(20,10,4, 200, 200, cyan); // until < 1:04:800
+      END_OF_CMD();
+    );
+    ALL(case 'A': STARTAT(MSM(1,07,520));
       flash(cyan, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(purple, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(cyan, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
       END_OF_CMD();
-    case '7':
-      // STARTAT(MSM(1, 12, 000));
-      STARTAT(MSM(1, 12, 680)); gradient(yellow, cyan, 2000, 10, // origin, end, duration,stroke,
+    );
+    ALL(case 'B': STARTAT(MSM(1, 12, 680));
+      gradient(yellow, cyan, 2000, 10, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
       END_OF_CMD();
-    case '8':
-      STARTAT(MSM(1, 17, 520)); gradient(yellow, purple, 2400, 10, // origin, end, duration,stroke,
+    );
+    ALL(case 'C': STARTAT(MSM(1, 17, 520));
+      gradient(yellow, purple, 2400, 10, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
       END_OF_CMD();
-    case '9':
-      // STARTAT(MSM(1, 21, 000));
-      STARTAT(MSM(1, 21, 880));
+    );
+    ONLY_GIRL(case 'b': STARTAT(MSM(1, 21, 100));
+      gradient(purple, CRGB::White, 820, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+      END_OF_CMD();
+    );
+    ALL(case 'D': STARTAT(MSM(1, 21, 880));
       // heart(purple, 700);
       spark(13,4,4, 400);
       commit(0, 0, 0);
       END_OF_CMD();
-    case 'A':
-      STARTAT(MSM(1, 22, 880));
+    );
+    ONLY_GIRL(case 'c': STARTAT(MSM(1, 22, 280));
+      gradient(cyan, CRGB::White, 640, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+      END_OF_CMD();
+    );
+    ALL(case 'E': STARTAT(MSM(1, 22, 880));
       // heart(cyan, 700);
       spark(20,10,4, 400);
       commit(0, 0, 0);
       END_OF_CMD();
-    case 'B':
-      STARTAT(MSM(1, 23, 880));
+    );
+    ONLY_GIRL(case 'd': STARTAT(MSM(1, 23, 440));
+      gradient(orange, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+      END_OF_CMD();
+    );
+    ALL(case 'F': STARTAT(MSM(1, 23, 880));
       // heart(yellow, 700);
       spark(10,20,4, 400);
       commit(0, 0, 0);
       END_OF_CMD();
-    case 'C':
-      STARTAT(MSM(1, 24, 880));
+    );
+    ONLY_GIRL(case 'e': STARTAT(MSM(1, 24, 440));
+      gradient(yellow, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+      END_OF_CMD();
+    );
+    ALL(case 'G': STARTAT(MSM(1, 24, 880));
       // heart(purple, 700);
       spark(20,10,4, 400);
       commit(0, 0, 0);
       END_OF_CMD();
-    case 'D':
-      STARTAT(MSM(1, 25, 800));
+    );
+    ONLY_GIRL(case 'f': STARTAT(MSM(1, 25, 440));
+      gradient(purple, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+      END_OF_CMD();
+    );
+    ALL(case 'H': STARTAT(MSM(1, 25, 800));
       // heart(cyan, 700);
       spark(13,6,4, 400);
       commit(0, 0, 0);
       END_OF_CMD();
-    case 'E':
-      STARTAT(MSM(1, 26, 800));
+    );
+    ONLY_GIRL(case 'g': STARTAT(MSM(1, 26, 400));
+      gradient(cyan, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+      END_OF_CMD();
+    );
+    ALL(case 'I': STARTAT(MSM(1, 26, 800));
       // heart(yellow, 700);
       spark(16,10,3, 400);
       commit(0, 0, 0);
       END_OF_CMD();
-    case 'F':
-      STARTAT(MSM(1, 27, 800));
+    );
+    ONLY_GIRL(case 'h': STARTAT(MSM(1, 27, 400));
+      gradient(cyan, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+      END_OF_CMD();
+    );
+    ALL(case 'J': STARTAT(MSM(1, 27, 800));
       // heart(purple, 700);
       spark(10,15,5, 400);
       commit(0, 0, 0);
       END_OF_CMD();
-    case 'G':
-      STARTAT(MSM(1, 29, 200));
+    );
+    ONLY_GIRL(case 'i': STARTAT(MSM(1, 28, 800));
+      gradient(CRGB::Black, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+      END_OF_CMD();
+    );
+    ALL(case 'K': STARTAT(MSM(1, 29, 200));
       // heart(cyan, 700);
+      // big final boom on the left top corner
       spark(20,10,4, 400);
       commit(0, 0, 0);
       END_OF_CMD();
-    case 'H':
-      // STARTAT(MSM(1,33,000));
-      STARTAT(MSM(1,33,640));
+    );
+    MAN_SYNC_GIRL(case 'L': STARTAT(MSM(1,33,640));
+      gradient(CRGB(255, 255, 255), CRGB(150, 150, 150), 920-640, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, -2, // bx,by,
+                                   0, HEIGHT, //ex,ey,
+                                   true, false, false); // lineElseDot,reverse
+      WasteTime(280);
       commit(255, 255, 255);
-      WasteTime(2000);
       END_OF_CMD();
-    case 'I':
-      STARTAT(MSM(1,35,600));
+    ,
+                  case 'L': STARTAT(MSM(1,33,920));
+      WasteTime(640 - 920);
+      gradient(CRGB(150, 150, 150), CRGB(10, 10, 10), 920-640, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, -2, // bx,by,
+                                   0, HEIGHT, //ex,ey,
+                                   true, false); // lineElseDot,reverse
+      commit(255, 255, 255);
+      // WasteTime(2000);
+      END_OF_CMD();
+    );
+    ALL(case 'M': STARTAT(MSM(1,35,600));
       commit(100, 100, 255);
-      WasteTime(5000);
+      // WasteTime(5000);
       END_OF_CMD();
-    case 'J':
-      STARTAT(MSM(1,40,000));
+    );
+    ALL(case 'N': STARTAT(MSM(1,40,000));
       commit(0, 0, 0);
       END_OF_CMD();
+    );
   }
   DSERIALln("Representation: Done");
 }
@@ -479,7 +593,10 @@ void heart(const CRGB color, const unsigned int duration) {
 // (ex,ey) gives the ending position.
 // TODO: find a way, that the animation goes smoothly until the end
 void gradient(const CRGB origin, const CRGB end, const unsigned short duration, const unsigned char stroke, const signed char bx, const signed char by, const signed char ex, const signed char ey, const bool lineElseDot, const bool reverse) {
-  const byte transition = 1000 / 30; // 30 fps
+  gradient(origin, end, duration, stroke, bx, by, ex, ey, lineElseDot,reverse, false);
+}
+void gradient(const CRGB origin, const CRGB end, const unsigned short duration, const unsigned char stroke, const signed char bx, const signed char by, const signed char ex, const signed char ey, const bool lineElseDot, const bool reverse, const bool leaveOnScreenAtTheEnd) {
+  const byte transition = 1000 / 20; // fps // TODO: try 20 fps out, to check if the woman goes as fast as the man thanks to it
   const unsigned short frames = duration / transition;
   const signed char dx = ex - bx, dy = ey - by; // (dx, dy) : overall movement
   const float length = sqrt(dx*dx + dy*dy);
@@ -567,7 +684,9 @@ void gradient(const CRGB origin, const CRGB end, const unsigned short duration, 
     if (FromLoop == 0){ return;}
     WasteTime(transition - (millis() - startingLoopAt));
   }
-  commit(0,0,0); // TODO: replace this with a fading out of the stroke at the end of the animation
+  if (!leaveOnScreenAtTheEnd) {
+    commit(0,0,0); // TODO: replace this with a fading out of the stroke at the end of the animation
+  }
 }
 
 // @param: x,y : center
@@ -797,18 +916,22 @@ void WasteTime(long interval){
   if (FromLoop == 0) { return;}
   while (millis() - initialMillis <= interval && FromLoop != 0)
   {
-    if (SERIAL.available() > 0)
-    {
-                // read the incoming byte:
-      incomingByte = SERIAL.read();
-
-                // say what you got:
-      DSERIAL("I received (DEC): ");
-      DSERIALln(incomingByte);
-      current = incomingByte;
+    if (listen()) {
       FromLoop = 0;
       FastLED.clear(true);
     }
+    // if (SERIAL.available() > 0)
+    // {
+    //             // read the incoming byte:
+    //   incomingByte = SERIAL.read();
+
+    //             // say what you got:
+    //   DSERIAL("I received (DEC): ");
+    //   DSERIALln(incomingByte);
+    //   current = incomingByte;
+    //   FromLoop = 0;
+    //   FastLED.clear(true);
+    // }
     if (interval <= 0) { // make sure that we don't wait when interval < 0
       return;
     }
@@ -816,18 +939,22 @@ void WasteTime(long interval){
 }
 
 void ForBreak(){
-  if (SERIAL.available() > 0)
-  {
-                // read the incoming byte:
-    incomingByte = SERIAL.read();
-
-                // say what you got:
-    DSERIAL("I received (DEC): ");
-    DSERIALln(incomingByte);
-    current = incomingByte;
+  if (listen()) {
     FromLoop = 0;
     FastLED.clear(true);
   }
+  // if (SERIAL.available() > 0)
+  // {
+  //               // read the incoming byte:
+  //   incomingByte = SERIAL.read();
+
+  //               // say what you got:
+  //   DSERIAL("I received (DEC): ");
+  //   DSERIALln(incomingByte);
+  //   current = incomingByte;
+  //   FromLoop = 0;
+  //   FastLED.clear(true);
+  // }
 }
 
 // Brute force address conversion, XY to Hex cells

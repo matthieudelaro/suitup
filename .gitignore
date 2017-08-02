@@ -3,3 +3,4 @@
 *.out
 *.app
 unittest
+main/main.prep.c++

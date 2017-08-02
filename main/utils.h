@@ -1,6 +1,16 @@
 #ifndef UTILS_1397483
 #define UTILS_1397483
 
+// ---------- OPTIONS:
+// #define SERIAL_USB 1 // else will be radio
+#define SERIAL_RADIO 1
+
+// #define DEBUG 1 // See DSERIAL and DSERIALln in utils.h
+#define ONLY_REMOTE_SYNC 1
+#define SECOND_PRECISION 1
+#define SUIT_FOR_MAN 1 // else will be for girl
+// ------------------
+
 #define byte unsigned char
 
 #define NUM_LEDS_ARM_L 24 // LEFT, seen from the guy wearing it
@@ -11,6 +21,7 @@
 #define NUM_LEDS_SKIRT 200
 
 extern byte incomingByte; // for incoming Serial1 data
+extern byte incomingByte2; // for incoming Serial1 data
 extern unsigned long previousMillis;
 extern bool FromLoop;
 extern byte current;
@@ -21,7 +32,6 @@ extern const struct CRGB purple, yellow, cyan;
 #define WIDTH_CHEST 16
 #define WIDTH (LENGTH_ARM + WIDTH_CHEST + LENGTH_ARM)
 
-// #define SUIT_FOR_MAN 1
 #ifdef SUIT_FOR_MAN
     #define NUM_LEDS_ALL (NUM_LEDS_ARM_L+NUM_LEDS_ARM_R+NUM_LEDS_CHEST+NUM_LEDS_LEG_L+NUM_LEDS_LEG_R)
     #define HEIGHT_CHEST 14

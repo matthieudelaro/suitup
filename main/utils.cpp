@@ -1,6 +1,7 @@
 #include "utils.h"
 
 byte incomingByte = 0; // for incoming Serial1 data
+byte incomingByte2 = 0; // for incoming Serial1 data
 unsigned long previousMillis = 0;
 bool FromLoop = 0;
 byte current = 97;
