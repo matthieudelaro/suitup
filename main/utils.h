@@ -8,7 +8,7 @@
 // #define DEBUG 1 // See DSERIAL and DSERIALln in utils.h
 #define ONLY_REMOTE_SYNC 1
 #define SECOND_PRECISION 1
-// #define SUIT_FOR_MAN 1 // else will be for girl
+#define SUIT_FOR_MAN 1 // else will be for girl
 // ------------------
 
 #define byte unsigned char

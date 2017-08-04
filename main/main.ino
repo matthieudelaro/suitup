@@ -19,6 +19,11 @@ const CRGB yellow = CRGB(115, 123, 0); // inspired from original value: CRGB(232
 const CRGB cyan  = CRGB(0, 128, 120);  // inspired from original value: CRGB(105, 250, 243)
 const CRGB orange  = CRGB(92, 59, 0);  // inspired from original value: CRGB(185, 118, 53)
 
+const CRGB halfPurple = CRGB(255 - 128/2, 255 - 0/2, 255 - 115/2); // inspired from original value: CRGB(222, 69, 228)
+const CRGB halfYellow = CRGB(255 - 115/2, 255 - 123/2, 255 - 0/2); // inspired from original value: CRGB(232, 246, 93)
+const CRGB halfCyan  = CRGB(255 - 0/2, 255 - 128/2, 255 - 120/2);  // inspired from original value: CRGB(105, 250, 243)
+const CRGB halfOrange  = CRGB(255 - 92/2, 255 - 59/2, 255 - 0/2);  // inspired from original value: CRGB(185, 118, 53)
+
 // const CRGB purple = CRGB(222, 69, 228); // the original value
 // const CRGB yellow = CRGB(232, 246, 93); // the original value
 // const CRGB cyan  = CRGB(105, 250, 243);  // the original value
@@ -54,12 +59,16 @@ void loop() {
 
   if (current == 0) { // board just started up
     // give a feedback
-    gradient(CRGB::Green, CRGB::Red,1000,30,0,0,32,0,true,false);
-    WasteTime(500);
-    commit(0,0,255);
-    WasteTime(500);
-    commit(0,0,0);
-    heart(purple, 500);
+    // gradient(CRGB::Green, CRGB::Red,1000,30,0,0,32,0,true,false);
+    // WasteTime(500);
+    // commit(0,0,255);
+    // WasteTime(500);
+    // commit(0,0,0);
+    // heart(purple, 500);
+    LEDs[id(0,0)] = CRGB(10,10,10);
+    FastLED.show();
+    WasteTime(1000);
+    FastLED.clear(true);
     current = '!'; // tell it to wait
   } else if (current == '!') {
     // do nothing
@@ -258,19 +267,26 @@ void representation(char step) {
     // ONLY_MAN('1', MSM(0, 38, 840), "not bad with 500ms delay",
     // real time: rather 38, 270
     ONLY_MAN('1', MSM(0, 38, 500), "first animation, big white flash, at the end of the white wheel",
-      flash(255, 255, 255, 1, 560, 560); // flash(r,g,b,beats,duration,period)
+      flash(255, 255, 255, 1, 2940, 2940); // flash(r,g,b,beats,duration,period)
+    );
+    ONLY_MAN('k', MSM(0, 44, 680), "gradient down to up",
+      gradient(CRGB::White, CRGB::White, 840, HEIGHT + 5, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, 0, // ex,ey,
+                                   true, false); // lineElseDot,reverse
+                                    // until 51:240
     );
     // ONLY_MAN('2', MSM(0, 45, 840), "useless comment",
-    ONLY_MAN('2', MSM(0, 45, 700), "flash with music rythm, and blue flash on the right",
+    ONLY_MAN('2', MSM(0, 45, 520), "flash with music rythm, and blue flash on the right",
       flash(cyan, 5, 50, 192); // flash(r,g,b,beats,duration,period)
 
       // STARTAT(MSM(0, 47, 000)); // TODO: add other animations
     );
-    // ONLY_MAN('3', MSM(0, 48, 160), "useless comment",
-    ONLY_MAN('3', MSM(0, 47, 000), "left shoulder cyan",
+    ONLY_MAN('3', MSM(0, 48, 160), "left shoulder cyan",
+    // ONLY_MAN('3', MSM(0, 47, 000), "left shoulder cyan",
       spark(2,-2,  7, 100,  1920,  cyan); // until 48:920
     );
-    ONLY_MAN('4', MSM(0, 48, 220), "right shoulder cyan",
+    ONLY_MAN('4', MSM(0, 49, 280), "right shoulder cyan",
       spark(29,-2,  7, 100,  1740,  cyan); // until 49:960
     );
     ONLY_MAN('5', MSM(0, 50, 680), "blue gradient top to bottom, when two blue balls fall",
@@ -282,7 +298,7 @@ void representation(char step) {
     );
     // ONLY_MAN('6', MSM(0, 53, 000), "purple => yellow line",
     ONLY_MAN('6', MSM(0, 52,  80), "purple => yellow line",
-      gradient(purple, yellow, 520, 10, // origin, end, duration,stroke,
+      gradient(purple, yellow, 520, HEIGHT, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    true, false); // lineElseDot,reverse
@@ -291,18 +307,18 @@ void representation(char step) {
     // ONLY_MAN('7', MSM(0, 53, 560), "purple v<= cyan dot",
     ONLY_MAN('7', MSM(0, 53, 800), "purple v<= cyan dot",
       // gradient(cyan, purple, 1200, 10, // origin, end, duration,stroke,
-      gradient(cyan, purple, 560, 10, // origin, end, duration,stroke, // too long, problem radio ?
+      gradient(cyan, purple, 560, 100, // origin, end, duration,stroke, // too long, problem radio ?
       // gradient(cyan, purple, 400, 10, // origin, end, duration,stroke,
                                    WIDTH, 0, // bx,by,
                                    0, HEIGHT, // ex,ey,
-                                   false, false); // lineElseDot,reverse
+                                   true, false); // lineElseDot,reverse
       // until 54:500
     );
     ONLY_MAN('8', MSM(0, 54, 760), "purple =>^ cyan dot",
-      gradient(purple, yellow, 840, 10, // origin, end, duration,stroke,
+      gradient(purple, yellow, 840, 100, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    WIDTH, 0, // ex,ey,
-                                   false, false); // lineElseDot,reverse
+                                   true, false); // lineElseDot,reverse
       // until 55:600
     );
     ONLY_MAN('9', MSM(0, 56, 725), "5 beats on rythm, rainbow on screen, dancer bows down",
@@ -332,130 +348,137 @@ void representation(char step) {
       flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
     );
     ONLY_GIRL('z', MSM(1, 9, 000), "show beauty of girls skirt",
-      spark(20,HEIGHT-10,8, 200, 200, cyan);
-      spark(10,HEIGHT-15,8, 200, 200, yellow);
-      spark(20,HEIGHT-10,8, 200, 200, orange);
-      spark(13,HEIGHT-6,8, 200, 200, purple);
-      spark(16,HEIGHT-10,8, 200, 200, cyan);
-      spark(20,HEIGHT-10,8, 200, 200, cyan);
-      spark(5,HEIGHT-15,8, 200, 200, yellow);
-      spark(20,HEIGHT-10,8, 200, 200, orange);
-      spark(13,HEIGHT-6,8, 200, 200, purple);
-      spark(16,HEIGHT-10,8, 200, 200, cyan);
-      spark(25,HEIGHT-10,8, 200, 200, cyan);
-      spark(10,HEIGHT-15,8, 200, 200, yellow);
-      spark(20,HEIGHT-10,8, 200, 200, orange);
-      spark(13,HEIGHT-6,8, 200, 200, purple);
-      spark(16,HEIGHT-10,8, 200, 200, cyan);
+      spark(20,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(10,HEIGHT-15, HEIGHT_SKIRT - (HEIGHT - HEIGHT-15), 200, 200, yellow);
+      spark(20,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, orange);
+      spark(13,HEIGHT-6, HEIGHT_SKIRT - (HEIGHT - HEIGHT-6), 200, 200, purple);
+      spark(16,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(20,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(5,HEIGHT-15, HEIGHT_SKIRT - (HEIGHT - HEIGHT-15), 200, 200, yellow);
+      spark(20,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, orange);
+      spark(13,HEIGHT-6, HEIGHT_SKIRT - (HEIGHT - HEIGHT-6), 200, 200, purple);
+      spark(16,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(25,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(10,HEIGHT-15, HEIGHT_SKIRT - (HEIGHT - HEIGHT-15), 200, 200, yellow);
+      spark(20,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, orange);
+      spark(13,HEIGHT-6, HEIGHT_SKIRT - (HEIGHT - HEIGHT-6), 200, 200, purple);
+      spark(16,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
     );
     ALL('B', MSM(1, 12, 680), "gradient yellow => cyan ",
-      gradient(yellow, cyan, 2000, 10, // origin, end, duration,stroke,
+      gradient(yellow, cyan, 2000, HEIGHT, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
     );
     ALL('C', MSM(1, 17, 520), "gradient yellow => purple",
-      gradient(yellow, purple, 2400, 10, // origin, end, duration,stroke,
+      gradient(yellow, purple, 2400, HEIGHT, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
                                    false, false); // lineElseDot,reverse
     );
 
 
-    ONLY_GIRL('b', MSM(1, 21, 100), "gradient on girl, sending color in the air",
-      gradient(purple, CRGB::White, 820, HEIGHT+4, // origin, end, duration,stroke,
+    ONLY_GIRL('b', MSM(1, 21, 100), "gradient on girl, sending color on the man",
+      gradient(purple, halfPurple, 390, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false, true); // lineElseDot,reverse
+    );
+    ONLY_MAN('D', MSM(1, 21, 490), "gradient on man, sending color in the air",
+      gradient(halfPurple, CRGB::White, 390, HEIGHT+4, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    0, -2, // ex,ey,
                                    true, false); // lineElseDot,reverse
     );
-    ONLY_MAN('D', MSM(1, 21, 880), "color explod on the man",
-      // heart(purple, 700);
-      spark(13,4,4, 400);
-      commit(0, 0, 0);
+    ONLY_GIRL('c', MSM(1, 22, 280), "gradient on girl, sending color on the man",
+      gradient(cyan, halfCyan, 300, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false, true); // lineElseDot,reverse
     );
-    ONLY_GIRL('c', MSM(1, 22, 280), "gradient on girl, sending color in the air",
-      gradient(cyan, CRGB::White, 640, HEIGHT+4, // origin, end, duration,stroke,
+    ONLY_MAN('E', MSM(1, 22, 580), "gradient on man, sending color in the air",
+      gradient(halfCyan, CRGB::White, 300, HEIGHT+4, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    0, -2, // ex,ey,
                                    true, false); // lineElseDot,reverse
-    );
-    ONLY_MAN('E', MSM(1, 22, 880), "color explod on the man",
-      // heart(cyan, 700);
-      spark(20,10,4, 400);
-      commit(0, 0, 0);
     );
     ONLY_GIRL('d', MSM(1, 23, 440), "gradient on girl, sending color in the air",
-      gradient(orange, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+      gradient(orange, halfOrange, 220, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false, true); // lineElseDot,reverse
+    );
+    ONLY_MAN('F', MSM(1, 23, 660), "gradient on man, sending color in the air",
+      gradient(halfOrange, CRGB::White, 220, HEIGHT+4, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    0, -2, // ex,ey,
                                    true, false); // lineElseDot,reverse
-    );
-    ONLY_MAN('F', MSM(1, 23, 880), "color explod on the man",
-      // heart(yellow, 700);
-      spark(10,20,4, 400);
-      commit(0, 0, 0);
     );
     ONLY_GIRL('e', MSM(1, 24, 440), "gradient on girl, sending color in the air",
-      gradient(yellow, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+      gradient(yellow, halfYellow, 220, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false, true); // lineElseDot,reverse
+    );
+    ONLY_MAN('G', MSM(1, 24, 660), "gradient on man, sending color in the air",
+      gradient(halfYellow, CRGB::White, 220, HEIGHT+4, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    0, -2, // ex,ey,
                                    true, false); // lineElseDot,reverse
-    );
-    ONLY_MAN('G', MSM(1, 24, 880), "color explod on the man",
-      // heart(purple, 700);
-      spark(20,10,4, 400);
-      commit(0, 0, 0);
     );
     ONLY_GIRL('f', MSM(1, 25, 440), "gradient on girl, sending color in the air",
-      gradient(purple, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+      gradient(purple, halfPurple, 180, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false, true); // lineElseDot,reverse
+    );
+    ONLY_MAN('H', MSM(1, 25, 620), "gradient on man, sending color in the air",
+      gradient(halfPurple, CRGB::White, 180, HEIGHT+4, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    0, -2, // ex,ey,
                                    true, false); // lineElseDot,reverse
-    );
-    ONLY_MAN('H', MSM(1, 25, 800), "color explod on the man",
-      // heart(cyan, 700);
-      spark(13,6,4, 400);
-      commit(0, 0, 0);
     );
     ONLY_GIRL('g', MSM(1, 26, 400), "gradient on girl, sending color in the air",
-      gradient(cyan, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+      gradient(cyan, halfCyan, 200, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false, true); // lineElseDot,reverse
+    );
+    ONLY_MAN('I', MSM(1, 26, 600), "gradient on man, sending color in the air",
+      gradient(halfCyan, CRGB::White, 200, HEIGHT+4, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    0, -2, // ex,ey,
                                    true, false); // lineElseDot,reverse
-    );
-    ONLY_MAN('I', MSM(1, 26, 800), "color explod on the man",
-      // heart(yellow, 700);
-      spark(16,10,3, 400);
-      commit(0, 0, 0);
     );
     ONLY_GIRL('h', MSM(1, 27, 400), "gradient on girl, sending color in the air",
-      gradient(cyan, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+      gradient(orange, halfOrange, 200, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false, true); // lineElseDot,reverse
+    );
+    ONLY_MAN('J', MSM(1, 27, 600), "gradient on man, sending color in the air",
+      gradient(halfOrange, CRGB::White, 200, HEIGHT+4, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    0, -2, // ex,ey,
                                    true, false); // lineElseDot,reverse
-    );
-    ONLY_MAN('J', MSM(1, 27, 800), "color explod on the man",
-      // heart(purple, 700);
-      spark(10,15,5, 400);
-      commit(0, 0, 0);
     );
     ONLY_GIRL('i', MSM(1, 28, 800), "gradient on girl, sending color in the air",
-      gradient(CRGB::Black, CRGB::White, 440, HEIGHT+4, // origin, end, duration,stroke,
+      gradient(purple, halfPurple, 200, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, HEIGHT, // bx,by,
+                                   0, -2, // ex,ey,
+                                   true, false, true); // lineElseDot,reverse
+    );
+    ONLY_MAN('K', MSM(1, 29, 000), "gradient on man, sending color in the air",
+      gradient(halfPurple, CRGB::White, 200, HEIGHT+4, // origin, end, duration,stroke,
                                    0, HEIGHT, // bx,by,
                                    0, -2, // ex,ey,
                                    true, false); // lineElseDot,reverse
-    );
-    ONLY_MAN('K', MSM(1, 29, 200), "color explod on the man",
-      // heart(cyan, 700);
-      // big final boom on the left top corner
-      spark(20,10,4, 400);
-      commit(0, 0, 0);
     );
 
 
     ONLY_MAN('L', MSM(1,33,640), "gradient from top to bottom on the man",
       // gradient(CRGB(255, 255, 255), CRGB(150, 150, 150), 920-640, HEIGHT+4, // origin, end, duration,stroke,
-      gradient(CRGB(255, 255, 255), CRGB(150, 150, 150), 2000, HEIGHT+4, // origin, end, duration,stroke,
+      gradient(CRGB(255, 255, 255), CRGB(100, 100, 100), 2000, HEIGHT+4, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    0, HEIGHT, //ex,ey,
                                    true, false, true); // lineElseDot,reverse
@@ -464,19 +487,20 @@ void representation(char step) {
     ONLY_GIRL('j', MSM(1,35,640), "gradient from top to bottom on the girl",
       // WasteTime(640 - 920);
       // gradient(CRGB(150, 150, 150), CRGB(10, 10, 10), 920-640, HEIGHT+4, // origin, end, duration,stroke,
-      gradient(CRGB(150, 150, 150), CRGB(10, 10, 10), 2000, HEIGHT+4, // origin, end, duration,stroke,
+      gradient(CRGB(100, 100, 100), CRGB(100, 100, 100), 2000, HEIGHT+4, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    0, HEIGHT, //ex,ey,
                                    true, false, true); // lineElseDot,reverse
       WasteTime(2000);
     );
-    ALL('M', MSM(1,36,000), "useless comment",
-      commit(100, 100, 255);
-      WasteTime(4000);
+    ALL('M', MSM(1,37,640), "fadeout",
+      gradient(CRGB(100, 100, 100), CRGB::Black, 16680, HEIGHT+4, // origin, end, duration,stroke,
+                                   0, 0, // bx,by,
+                                   0, HEIGHT, //ex,ey,
+                                   true, false, true); // lineElseDot,reverse
     );
-    ALL('N', MSM(1,40,000), "useless comment",
+    ALL('N', MSM(1,54,320), "turn lights off",
       commit(0, 0, 0);
-      END_OF_CMD();
     );
   }
   DSERIALln("Representation: Done");
