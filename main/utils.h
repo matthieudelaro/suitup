@@ -9,6 +9,8 @@
 #define ONLY_REMOTE_SYNC 1
 #define SECOND_PRECISION 1
 #define SUIT_FOR_MAN 1 // else will be for girl
+
+#define DELAY_NEW_VIDEO 25000
 // ------------------
 
 #define byte unsigned char
@@ -65,7 +67,7 @@ extern const struct CRGB purple, yellow, cyan;
 #endif
 
 #define B(minInclude, x, maxExclude) (minInclude <= x && x < maxExclude)
-#define MSM(minutes, seconds, milliseconds) ((long)((60 * minutes + seconds) * 1000 + milliseconds))
+#define MSM(minutes, seconds, milliseconds) ((long)((60 * minutes + seconds) * 1000 + milliseconds + DELAY_NEW_VIDEO))
 
 
 // Return the index of the LED (in the array ALL)

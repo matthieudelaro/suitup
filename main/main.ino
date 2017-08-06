@@ -230,7 +230,7 @@ void representation(char step) {
       #define DELAY_RADIO 0
       // 150 - 200 ms seems really good
     #endif
-    #define MSM(minutes, seconds, milliseconds) QUOTE((((60 * minutes + seconds) * 1000 + milliseconds - DELAY_RADIO)))
+    #define MSM(minutes, seconds, milliseconds) QUOTE((((60 * minutes + seconds) * 1000 + milliseconds - DELAY_RADIO + DELAY_NEW_VIDEO)))
 
     #define ALL(character, startDate, comment, cmd) echo `echo startDate | bc`, COM28, QUOTE(A)character, comment,
     #define ONLY_MAN(character, startDate, comment, cmd)  echo `echo startDate | bc`, COM28, QUOTE(M)character, comment,
@@ -348,33 +348,33 @@ void representation(char step) {
       flash(yellow, 1, 50, 300);// flash(r,g,b,beats,duration,period)
     );
     ONLY_GIRL('z', MSM(1, 9, 000), "show beauty of girls skirt",
-      spark(20,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
-      spark(10,HEIGHT-15, HEIGHT_SKIRT - (HEIGHT - HEIGHT-15), 200, 200, yellow);
-      spark(20,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, orange);
-      spark(13,HEIGHT-6, HEIGHT_SKIRT - (HEIGHT - HEIGHT-6), 200, 200, purple);
-      spark(16,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
-      spark(20,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
-      spark(5,HEIGHT-15, HEIGHT_SKIRT - (HEIGHT - HEIGHT-15), 200, 200, yellow);
-      spark(20,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, orange);
-      spark(13,HEIGHT-6, HEIGHT_SKIRT - (HEIGHT - HEIGHT-6), 200, 200, purple);
-      spark(16,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
-      spark(25,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
-      spark(10,HEIGHT-15, HEIGHT_SKIRT - (HEIGHT - HEIGHT-15), 200, 200, yellow);
-      spark(20,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, orange);
-      spark(13,HEIGHT-6, HEIGHT_SKIRT - (HEIGHT - HEIGHT-6), 200, 200, purple);
-      spark(16,HEIGHT-10, HEIGHT_SKIRT - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(20,HEIGHT-10, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(10,HEIGHT-15, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-15), 200, 200, yellow);
+      spark(20,HEIGHT-10, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-10), 200, 200, orange);
+      spark(13,HEIGHT-6, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-6), 200, 200, purple);
+      spark(16,HEIGHT-10, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(20,HEIGHT-10, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(5,HEIGHT-15, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-15), 200, 200, yellow);
+      spark(20,HEIGHT-10, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-10), 200, 200, orange);
+      spark(13,HEIGHT-6, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-6), 200, 200, purple);
+      spark(16,HEIGHT-10, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(25,HEIGHT-10, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-10), 200, 200, cyan);
+      spark(10,HEIGHT-15, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-15), 200, 200, yellow);
+      spark(20,HEIGHT-10, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-10), 200, 200, orange);
+      spark(13,HEIGHT-6, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-6), 200, 200, purple);
+      spark(16,HEIGHT-10, (HEIGHT - HEIGHT_CHEST) - (HEIGHT - HEIGHT-10), 200, 200, cyan);
     );
     ALL('B', MSM(1, 12, 680), "gradient yellow => cyan ",
       gradient(yellow, cyan, 2000, HEIGHT, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
-                                   false, false); // lineElseDot,reverse
+                                   true, false); // lineElseDot,reverse
     );
     ALL('C', MSM(1, 17, 520), "gradient yellow => purple",
       gradient(yellow, purple, 2400, HEIGHT, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    WIDTH, 0, // ex,ey,
-                                   false, false); // lineElseDot,reverse
+                                   true, false); // lineElseDot,reverse
     );
 
 
@@ -478,32 +478,150 @@ void representation(char step) {
 
     ONLY_MAN('L', MSM(1,33,640), "gradient from top to bottom on the man",
       // gradient(CRGB(255, 255, 255), CRGB(150, 150, 150), 920-640, HEIGHT+4, // origin, end, duration,stroke,
-      gradient(CRGB(255, 255, 255), CRGB(100, 100, 100), 2000, HEIGHT+4, // origin, end, duration,stroke,
+      gradient(CRGB(255, 255, 255), CRGB(100, 100, 100), 3000, HEIGHT+4, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    0, HEIGHT, //ex,ey,
                                    true, false, true); // lineElseDot,reverse
-      WasteTime(2000);
+      WasteTime(3000);
     );
-    ONLY_GIRL('j', MSM(1,35,640), "gradient from top to bottom on the girl",
+    ONLY_GIRL('j', MSM(1,36,640), "gradient from top to bottom on the girl",
       // WasteTime(640 - 920);
       // gradient(CRGB(150, 150, 150), CRGB(10, 10, 10), 920-640, HEIGHT+4, // origin, end, duration,stroke,
-      gradient(CRGB(100, 100, 100), CRGB(100, 100, 100), 2000, HEIGHT+4, // origin, end, duration,stroke,
+      gradient(CRGB(100, 100, 100), CRGB(100, 100, 100), 3000, HEIGHT+4, // origin, end, duration,stroke,
                                    0, 0, // bx,by,
                                    0, HEIGHT, //ex,ey,
                                    true, false, true); // lineElseDot,reverse
-      WasteTime(2000);
+      WasteTime(3000);
     );
-    ALL('M', MSM(1,37,640), "fadeout",
-      gradient(CRGB(100, 100, 100), CRGB::Black, 16680, HEIGHT+4, // origin, end, duration,stroke,
-                                   0, 0, // bx,by,
-                                   0, HEIGHT, //ex,ey,
-                                   true, false, true); // lineElseDot,reverse
+    // ALL('M', MSM(1,37,640), "fadeout",
+    //   gradient(CRGB(100, 100, 100), CRGB::Black, 16680, HEIGHT+4, // origin, end, duration,stroke,
+    //                                0, 0, // bx,by,
+    //                                0, HEIGHT, //ex,ey,
+    //                                true, false, true); // lineElseDot,reverse
+    // );
+    ALL('M', MSM(1,39,640), "lines down, then fade out",
+      // lineDown(16680, CRGB(100, 100, 100), CRGB::Black);
+      lineDown(12680, CRGB(100, 100, 100), CRGB::Black);
+      fadeOut(4000);
     );
-    ALL('N', MSM(1,54,320), "turn lights off",
+    ALL('N', MSM(1,58,320), "turn lights off",
+      // commit(100, 100, 100);
       commit(0, 0, 0);
     );
   }
   DSERIALln("Representation: Done");
+}
+
+void fadeOut(const unsigned long duration) {
+  // const signed short transition = 1000 / 30; // 30 fps
+  const signed short transition = 1000 / 30; // 30 fps
+  const unsigned long startingTime = millis();
+  const unsigned long endingDate = startingTime + duration;
+  // const unsigned short frames = duration / transition;
+  // const signed short colorHeight = 5;
+  // const signed short clearHeight = 2;
+  // const signed short height = colorHeight + clearHeight + 1;
+  // // const CRGB colorMiddle = CRGB((colorStroke.r + colorClear.r) / 2, (colorStroke.g + colorClear.g) / 2, (colorStroke.b + colorClear.b) / 2);
+  // const CRGB colorMiddle = CRGB(5, 5, 5);
+
+  unsigned long startingLoopAt;
+  // FastLED.clear(true);
+  // commit(statingColor);
+  unsigned int frame = 0;
+  short ledID;
+  while ((startingLoopAt = millis()) < endingDate) {
+    // commit(colorClear);
+  // while (millis() < endingDate) {
+  // for (unsigned short t = 0; t < frames; ++t) { // for each frame of the transition
+    // startingLoopAt = millis();
+    // const float progression = (float)(t+1) / (float)(frames);
+
+    // compute the color of each LED
+
+    for (signed char x = 0; x < WIDTH; ++x) { // TODO: work only in the square of end and origin
+      for (signed char y = 0; y < HEIGHT; ++y) {
+        if ((ledID = id(x, y)) != -1) { // do not bother doing any computation for pixels that won't be displayed
+          // // if (y > frame) {
+          //   // let the original color at the beginning of the animation
+          // // } else {
+          //   short role = ((frame - y) % height);
+          //   if (role == 0) {
+          //     LEDs[ledID] = colorMiddle;
+          //   } else if (role <= colorHeight) {
+          //     LEDs[ledID] = colorStroke;
+          //   } else {
+          //     LEDs[ledID] = colorClear;
+          //   }
+          // // }
+          LEDs[ledID].r = LEDs[ledID].r == 0 ? 0 : LEDs[ledID].r - 1;
+          LEDs[ledID].g = LEDs[ledID].g == 0 ? 0 : LEDs[ledID].g - 1;
+          LEDs[ledID].b = LEDs[ledID].b == 0 ? 0 : LEDs[ledID].b - 1;
+        }
+      }
+    }
+
+    FastLED.show();
+    if (FromLoop == 0){ return;}
+    WasteTime(transition - (millis() - startingLoopAt));
+    if (FromLoop == 0){ return;}
+
+    ++frame;
+  }
+}
+// const CRGB &startingColor,
+void lineDown(const unsigned long duration, const CRGB &colorStroke, const CRGB &colorClear){
+  const signed short transition = 1000 / 10; // 30 fps
+  const unsigned long startingTime = millis();
+  const unsigned long endingDate = startingTime + duration;
+  // const unsigned short frames = duration / transition;
+  const signed short colorHeight = 5;
+  const signed short clearHeight = 2;
+  const signed short height = colorHeight + clearHeight + 1;
+  // const CRGB colorMiddle = CRGB((colorStroke.r + colorClear.r) / 2, (colorStroke.g + colorClear.g) / 2, (colorStroke.b + colorClear.b) / 2);
+  const CRGB colorMiddle = CRGB(5, 5, 5);
+
+  unsigned long startingLoopAt;
+  // FastLED.clear(true);
+  // commit(statingColor);
+  unsigned int frame = 0;
+  short ledID;
+  while ((startingLoopAt = millis()) < endingDate) {
+    // commit(colorClear);
+  // while (millis() < endingDate) {
+  // for (unsigned short t = 0; t < frames; ++t) { // for each frame of the transition
+    // startingLoopAt = millis();
+    // const float progression = (float)(t+1) / (float)(frames);
+
+    // compute the color of each LED
+
+    for (signed char x = 0; x < WIDTH; ++x) { // TODO: work only in the square of end and origin
+      for (signed char y = 0; y < HEIGHT; ++y) {
+        if ((ledID = id(x, y)) != -1) { // do not bother doing any computation for pixels that won't be displayed
+          // if (y > frame) {
+            // let the original color at the beginning of the animation
+          // } else {
+            short role = ((frame - y) % height);
+            if (role == 0) {
+              LEDs[ledID] = colorMiddle;
+            } else if (role <= colorHeight) {
+              LEDs[ledID] = colorStroke;
+            } else {
+              LEDs[ledID] = colorClear;
+            }
+          // }
+        }
+      }
+    }
+
+    FastLED.show();
+    if (FromLoop == 0){ return;}
+    WasteTime(transition - (millis() - startingLoopAt));
+    if (FromLoop == 0){ return;}
+
+    ++frame;
+  }
+
+  // WasteTime(duration - (millis() - startingTime));
 }
 
 void spark(const signed char bx, const signed char by, short radius, const unsigned long duration){
