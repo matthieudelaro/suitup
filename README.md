@@ -1,4 +1,4 @@
-# suitup
+# Suit up!
 Suitup is an Arduino project, designed to control two dance LED costumes.  
 The result can be seen on YouTube: you may watch it from [the beginning of the dance](https://youtu.be/k2F2FrwSzXY?t=17m3s) or from [the first usage of the LEDs](https://youtu.be/k2F2FrwSzXY?t=18m17s)
 
@@ -14,4 +14,7 @@ The signal is composed of two characters: [M|F|A][a letter]. The first character
 
 The custom video player implemented for this representation (based on VLC) reads a CSV file (similar to a file describing subtitles). It contains timecodes and associated text, which is then emitted by radio as the player plays the video.
 
+The arduino displays animation by computing the color of each LED. Those are adressed thanks to the array [LEDs](https://github.com/matthieudelaro/suitup/blob/master/main/main.ino#L33), each cell corresponding to the color of a LED. [This video](https://github.com/matthieudelaro/suitup/raw/master/LEDorder_LQ.mp4) shows LEDs being turn on, one after another, from LEDs[0] to LEDs[about 400]. 
 
+## Thanks
+Big thanks to those who created the costumes and the video player. Big thanks to the dancers, the team in charge of the stage and of the control room for this awesome representation in front of ~1300 people.
